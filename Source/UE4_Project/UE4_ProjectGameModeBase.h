@@ -14,4 +14,6 @@ class UE4_PROJECT_API AUE4_ProjectGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	AUE4_ProjectGameModeBase();
 };

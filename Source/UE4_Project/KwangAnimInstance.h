@@ -15,14 +15,6 @@ class UE4_PROJECT_API UKwangAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 	
 public:
-	UKwangAnimInstance();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
-	bool isRunning;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
-	bool isJumping;
-
-
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativeBeginPlay() override;
+private:
 };

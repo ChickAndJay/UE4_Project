@@ -26,14 +26,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+	virtual void PostInitializeComponents() override;
 private:
 	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* SpringArmComp;
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
 
-	bool isRunning = false;
+	UPROPERTY()
+	class UKwangAnimInstance* KwangAnimInstance;
+
+	bool isInputEnable = false;
 public:
 	// 전후 이동 처리
 	UFUNCTION()
@@ -43,9 +46,11 @@ public:
 	UFUNCTION()
 	void MoveRight(float Value);
 
-	FORCEINLINE bool IsRunning() const
+	UFUNCTION()
+	void SetInputEnable(UAnimMontage* Montage, bool bInterrupted)
 	{
-		return isRunning;
+		isInputEnable = true;
 	}
 
+	virtual void AddControllerPitchInput(float Val) override;
 };

@@ -15,6 +15,8 @@ APlayerCharacter::APlayerCharacter()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
+
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRING ARM"));
 	SpringArmComp->SetupAttachment(RootComponent);
 	
@@ -33,14 +35,11 @@ APlayerCharacter::APlayerCharacter()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(8.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
-	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("AnimBlueprint'/Game/CustomContent/Character/Kwang/Animation/BP_KwangAnim.BP_KwangAnim_C'"));
+	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/Kwang_AnimBlueprint.Kwang_AnimBlueprint_C"));
 	if (BP_ANIM.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
 	}
-	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
-
-	isRunning = false;
 }
 
 // Called when the game starts or when spawned
@@ -48,6 +47,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	isInputEnable = false;
 }
 
 // Called every frame
@@ -61,29 +61,41 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+
+	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
+}
+
+void APlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	KwangAnimInstance = Cast<UKwangAnimInstance>(GetMesh()->GetAnimInstance());
+	KwangAnimInstance->OnMontageEnded.AddDynamic(this, &APlayerCharacter::SetInputEnable);
 }
 
 void APlayerCharacter::MoveForward(float Value)
 {
+	if (!isInputEnable)
+		return;
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
-
-	if (Value > 0.2f)
-	{
-		isRunning = true;
-	}
-	else
-	{
-		isRunning = false;
-	}
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
+	if (!isInputEnable)
+		return;
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
+}
+
+void APlayerCharacter::AddControllerPitchInput(float Val)
+{
+	Super::AddControllerPitchInput(Val);
+
+	SpringArmComp->AddRelativeRotation(FRotator(-Val, 0.0f, 0.0f));
 }

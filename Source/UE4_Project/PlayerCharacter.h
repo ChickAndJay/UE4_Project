@@ -29,15 +29,11 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* CapCuleComponent;
-	UPROPERTY(EditAnywhere)
-	class USkeletalMeshComponent* MeshComponent;
-	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* SpringArmComp;
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
 
-
+	bool isRunning = false;
 public:
 	// 전후 이동 처리
 	UFUNCTION()
@@ -46,4 +42,10 @@ public:
 	// 좌우 이동 처리
 	UFUNCTION()
 	void MoveRight(float Value);
+
+	FORCEINLINE bool IsRunning() const
+	{
+		return isRunning;
+	}
+
 };

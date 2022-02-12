@@ -36,7 +36,21 @@ private:
 	UPROPERTY()
 	class UKwangAnimInstance* KwangAnimInstance;
 
-	bool isInputEnable = false;
+	bool IsInputEnable = false;
+
+	FVector2D MovementInput;
+	
+	UPROPERTY(EditAnywhere)
+	float ZOOM_FACTOR = 10.0f;
+	UPROPERTY(EditAnywhere)
+	float ZOOM_MIN = 150.0f;
+	UPROPERTY(EditAnywhere)
+	float ZOOM_MAX = 800.0f;
+
+	UPROPERTY(EditAnywhere)
+	float ROT_LOOK_UP_MIN = -80.0f;
+	UPROPERTY(EditAnywhere)
+	float ROT_LOOK_UP_MAX = -10.0f;
 public:
 	// 전후 이동 처리
 	UFUNCTION()
@@ -49,8 +63,11 @@ public:
 	UFUNCTION()
 	void SetInputEnable(UAnimMontage* Montage, bool bInterrupted)
 	{
-		isInputEnable = true;
+		IsInputEnable = true;
 	}
 
 	virtual void AddControllerPitchInput(float Val) override;
+	virtual void AddControllerYawInput(float Val) override;
+
+	void RotateMouseWheel(float Val);
 };

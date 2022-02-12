@@ -8,12 +8,13 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "KwangAnimInstance.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
 
@@ -23,7 +24,6 @@ APlayerCharacter::APlayerCharacter()
 	SpringArmComp->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-10.0f, 0.0f, 0.0f));
     SpringArmComp->TargetArmLength = 400.f;
     SpringArmComp->bEnableCameraLag = false;
-    //SpringArmComp->CameraLagSpeed = 3.0f;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("MAIN CAMERA"));
 	Camera->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
@@ -35,7 +35,7 @@ APlayerCharacter::APlayerCharacter()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(8.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	}
 
-	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/Kwang_AnimBlueprint.Kwang_AnimBlueprint_C"));
+	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/CustomContent/Character/Kwang/Animation/Kwang_AnimBlueprint_Custom.Kwang_AnimBlueprint_Custom_C"));
 	if (BP_ANIM.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
@@ -47,14 +47,13 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	isInputEnable = false;
+	IsInputEnable = false;
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -67,6 +66,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAxis("MouseWheel", this, &APlayerCharacter::RotateMouseWheel);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -79,15 +80,16 @@ void APlayerCharacter::PostInitializeComponents()
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if (!isInputEnable)
+	if (!IsInputEnable)
 		return;
+	
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if (!isInputEnable)
+	if (!IsInputEnable)
 		return;
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
@@ -95,7 +97,25 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::AddControllerPitchInput(float Val)
 {
-	Super::AddControllerPitchInput(Val);
+	if (!IsInputEnable)
+		return;
 
-	SpringArmComp->AddRelativeRotation(FRotator(-Val, 0.0f, 0.0f));
+	FRotator NewRotation = SpringArmComp->GetComponentRotation();
+	NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + -Val, ROT_LOOK_UP_MIN, ROT_LOOK_UP_MAX);
+	SpringArmComp->SetWorldRotation(NewRotation);
+}
+
+void APlayerCharacter::AddControllerYawInput(float Val)
+{
+	if (!IsInputEnable)
+		return;
+	Super::AddControllerYawInput(Val);
+}
+
+
+void APlayerCharacter::RotateMouseWheel(float Val)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("RotateMouseWheel : %f"), Val);
+	float newArmLength = FMath::Clamp(SpringArmComp->TargetArmLength + Val * ZOOM_FACTOR * (-1), ZOOM_MIN, ZOOM_MAX);
+	SpringArmComp->TargetArmLength = newArmLength;
 }

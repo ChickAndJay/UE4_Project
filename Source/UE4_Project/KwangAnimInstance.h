@@ -16,5 +16,11 @@ class UE4_PROJECT_API UKwangAnimInstance : public UAnimInstance
 	
 public:
 	virtual void NativeBeginPlay() override;
-private:
+
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool IsAccelerating;
+
+	class UCharacterMovementComponent* CharacterMovement;
 };

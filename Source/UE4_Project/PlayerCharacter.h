@@ -18,7 +18,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	
+	void InitializeValues();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -37,8 +38,6 @@ private:
 	class UKwangAnimInstance* KwangAnimInstance;
 
 	bool IsInputEnable = false;
-
-	FVector2D MovementInput;
 	
 	UPROPERTY(EditAnywhere)
 	float ZOOM_FACTOR = 10.0f;
@@ -50,15 +49,17 @@ private:
 	UPROPERTY(EditAnywhere)
 	float ROT_LOOK_UP_MIN = -80.0f;
 	UPROPERTY(EditAnywhere)
-	float ROT_LOOK_UP_MAX = -10.0f;
+	float ROT_LOOK_UP_MAX = 30.0f;
 public:
-	// 전후 이동 처리
 	UFUNCTION()
 	void MoveForward(float Value);
-
-	// 좌우 이동 처리
 	UFUNCTION()
 	void MoveRight(float Value);
+	
+	UFUNCTION()
+	void StartJump();
+	UFUNCTION()
+	void StopJump();
 
 	UFUNCTION()
 	void SetInputEnable(UAnimMontage* Montage, bool bInterrupted)

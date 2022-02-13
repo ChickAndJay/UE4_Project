@@ -42,12 +42,18 @@ APlayerCharacter::APlayerCharacter()
 	}
 }
 
+void APlayerCharacter::InitializeValues()
+{
+	IsInputEnable = false;
+	bPressedJump = false;
+
+	JumpMaxHoldTime = 0.15f;
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	IsInputEnable = false;
 }
 
 // Called every frame
@@ -68,6 +74,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAxis("MouseWheel", this, &APlayerCharacter::RotateMouseWheel);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -93,6 +102,20 @@ void APlayerCharacter::MoveRight(float Value)
 		return;
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
+}
+
+void APlayerCharacter::StartJump()
+{
+	if (!IsInputEnable)
+		return;
+	bPressedJump = true;
+}
+
+void APlayerCharacter::StopJump()
+{
+	if (!IsInputEnable)
+		return;
+	bPressedJump = false;
 }
 
 void APlayerCharacter::AddControllerPitchInput(float Val)

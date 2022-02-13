@@ -19,8 +19,30 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 public:
+	const float LEAN_INTENSITY_FACTOR = 7.0f;
+	const float INTERP_SPEED = 6.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool IsAccelerating;
 
-	class UCharacterMovementComponent* CharacterMovement;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool IsInAir;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Roll;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Pitch;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Yaw;
+
+	UPROPERTY(BlueprintReadOnly)
+	float YawDelta;
+	UPROPERTY(BlueprintReadOnly)
+	FRotator RotationLastTick;
+
+	class UCharacterMovementComponent* CharacterMovementComponent;
+	class APlayerCharacter* OwnerPlayerCharacter;
 };

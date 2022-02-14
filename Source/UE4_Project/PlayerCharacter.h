@@ -50,6 +50,11 @@ private:
 	float ROT_LOOK_UP_MAX = 30.0f;
 
 	int MAX_COMBO_COUNT = 4;
+	
+	UPROPERTY(EditAnywhere)
+	float MAX_JOG_VALUE = 600.0f;
+	UPROPERTY(EditAnywhere)
+	float MAX_SPRINT_FACTOR = 1000.0f;
 private:
 	bool IsInputEnable;
 
@@ -57,6 +62,8 @@ private:
 	bool IsPressedComboInput;
 	int ComboCount;
 
+	bool IsSprinting;
+	bool IsForwardRunning;
 public:
 	void SetStartAttackState();
 	void SetEndAttackState();
@@ -64,7 +71,21 @@ public:
 	void CheckNextAttack();
 	void ResetCombo();
 
+	FORCEINLINE bool GetIsSprinting()
+	{
+		return IsSprinting;
+	}
+
+	FORCEINLINE bool GetIsForwardRunning()
+	{
+		return IsForwardRunning;
+	}
 public:
+	UFUNCTION()
+	void SetSprint();
+	UFUNCTION()
+	void UnsetSprint();
+
 	UFUNCTION()
 	void MoveForward(float Value);
 	UFUNCTION()
@@ -79,10 +100,7 @@ public:
 	void Attack();
 
 	UFUNCTION()
-	void SetInputEnable()
-	{
-		IsInputEnable = true;
-	}
+	void SetInputEnable();
 
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddControllerYawInput(float Val) override;

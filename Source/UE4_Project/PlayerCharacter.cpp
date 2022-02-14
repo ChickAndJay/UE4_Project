@@ -6,7 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "KwangAnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -57,6 +57,9 @@ void APlayerCharacter::BeginPlay()
 
 	IsAttacking = false;
 	IsPressedComboInput = false;
+
+	IsSprinting = false;
+	IsForwardRunning = true;
 }
 
 // Called every frame
@@ -82,6 +85,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
 
 	PlayerInputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &APlayerCharacter::Attack);
+
+	PlayerInputComponent->BindAction("LeftShift", IE_Pressed, this, &APlayerCharacter::SetSprint);
+	PlayerInputComponent->BindAction("LeftShift", IE_Released, this, &APlayerCharacter::UnsetSprint);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -94,6 +100,11 @@ void APlayerCharacter::PostInitializeComponents()
 		KwangAnimInstance->GetOnSaveAttackDelegate().AddUObject(this, &APlayerCharacter::CheckNextAttack);
 		KwangAnimInstance->GetOnResetComboDelegate().AddUObject(this, &APlayerCharacter::ResetCombo);
 	}
+}
+
+void APlayerCharacter::SetInputEnable()
+{
+	IsInputEnable = true;
 }
 
 void APlayerCharacter::CheckNextAttack()
@@ -127,12 +138,22 @@ void APlayerCharacter::SetEndAttackState()
 	ComboCount = 0;
 }
 
-// [begin] Input Delegate
+//////////////////////// [begin] Input Delegate
 void APlayerCharacter::MoveForward(float Value)
 {
 	if (!IsInputEnable)
 		return;
 	
+	if (Value >= 0.f)
+		IsForwardRunning = true;
+	else
+		IsForwardRunning = false;
+
+	if(IsSprinting && !IsForwardRunning)
+		GetCharacterMovement()->MaxWalkSpeed = MAX_SPRINT_FACTOR;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = MAX_JOG_VALUE;
+
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
 }
@@ -141,6 +162,7 @@ void APlayerCharacter::MoveRight(float Value)
 {
 	if (!IsInputEnable)
 		return;
+
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
 }
@@ -198,7 +220,6 @@ void APlayerCharacter::AddControllerYawInput(float Val)
 	Super::AddControllerYawInput(Val);
 }
 
-
 void APlayerCharacter::RotateMouseWheel(float Val)
 {
 	if (!IsInputEnable)
@@ -209,5 +230,15 @@ void APlayerCharacter::RotateMouseWheel(float Val)
 	//UE_LOG(LogTemp, Warning, TEXT("RotateMouseWheel : %f"), Val);
 	float newArmLength = FMath::Clamp(SpringArmComp->TargetArmLength + Val * ZOOM_FACTOR * (-1), ZOOM_MIN, ZOOM_MAX);
 	SpringArmComp->TargetArmLength = newArmLength;
+}
+
+void APlayerCharacter::SetSprint()
+{
+	IsSprinting = true;
+}
+
+void APlayerCharacter::UnsetSprint()
+{
+	IsSprinting = false;
 }
 // [end] Input Delegate

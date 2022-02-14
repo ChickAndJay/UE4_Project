@@ -39,6 +39,8 @@ UKwangAnimInstance::UKwangAnimInstance()
 
 	IsAccelerating = false;
 	IsAttacking = false;
+	IsForward = true;
+
 	RotationLastTick = FRotator::ZeroRotator;
 }
 
@@ -64,7 +66,7 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		// Calculate Speed
 		Speed = OwnerPlayerCharacter->GetVelocity().Size();
-
+		IsForward = OwnerPlayerCharacter->GetIsForwardRunning();
 		// Rool Pitch Yaw
 		FRotator AimRotation = OwnerPlayerCharacter->GetBaseAimRotation();
 		FRotator ActorRotation = OwnerPlayerCharacter->GetActorRotation();
@@ -84,6 +86,8 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 		
 		RotationLastTick = ActorRotation;
+
+		IsSprinting = OwnerPlayerCharacter->GetIsSprinting();
 	}
 
 	if (IsValid(CharacterMovementComponent))

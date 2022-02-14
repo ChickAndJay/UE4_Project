@@ -37,16 +37,11 @@ APlayerCharacter::APlayerCharacter()
 
 	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/CustomContent/Character/Kwang/Animation/Kwang_AnimBlueprint_Custom.Kwang_AnimBlueprint_Custom_C"));
 	if (BP_ANIM.Succeeded())
-	{
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
-	}
 }
 
 void APlayerCharacter::InitializeValues()
 {
-	IsInputEnable = false;
-	bPressedJump = false;
-
 	JumpMaxHoldTime = 0.15f;
 }
 
@@ -54,6 +49,14 @@ void APlayerCharacter::InitializeValues()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ComboCount = 0;
+
+	IsInputEnable = false;
+	bPressedJump = false;
+
+	IsAttacking = false;
+	IsPressedComboInput = false;
 }
 
 // Called every frame
@@ -77,6 +80,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::StopJump);
+
+	PlayerInputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &APlayerCharacter::Attack);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -84,9 +89,45 @@ void APlayerCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	KwangAnimInstance = Cast<UKwangAnimInstance>(GetMesh()->GetAnimInstance());
-	KwangAnimInstance->OnMontageEnded.AddDynamic(this, &APlayerCharacter::SetInputEnable);
+	if (IsValid(KwangAnimInstance))
+	{
+		KwangAnimInstance->GetOnSaveAttackDelegate().AddUObject(this, &APlayerCharacter::CheckNextAttack);
+		KwangAnimInstance->GetOnResetComboDelegate().AddUObject(this, &APlayerCharacter::ResetCombo);
+	}
 }
 
+void APlayerCharacter::CheckNextAttack()
+{
+	if (IsPressedComboInput)
+	{
+		IsPressedComboInput = false;
+		ComboCount++;
+		if (ComboCount > MAX_COMBO_COUNT)
+			ComboCount = 1;
+		KwangAnimInstance->PlayAttack(ComboCount);
+	}
+}
+
+void APlayerCharacter::ResetCombo()
+{		
+	SetEndAttackState();
+}
+
+void APlayerCharacter::SetStartAttackState()
+{
+	IsPressedComboInput = false;
+	IsAttacking = true;
+	ComboCount = 1;
+}
+
+void APlayerCharacter::SetEndAttackState()
+{
+	IsPressedComboInput = false;
+	IsAttacking = false;
+	ComboCount = 0;
+}
+
+// [begin] Input Delegate
 void APlayerCharacter::MoveForward(float Value)
 {
 	if (!IsInputEnable)
@@ -118,9 +159,31 @@ void APlayerCharacter::StopJump()
 	bPressedJump = false;
 }
 
+void APlayerCharacter::Attack()
+{
+	if (!IsInputEnable)
+		return;
+	if (!IsValid(KwangAnimInstance))
+		return;
+
+	if (!IsAttacking)
+	{		
+		SetStartAttackState();
+
+		KwangAnimInstance->PlayAttack(ComboCount);
+	}
+	else
+	{
+		IsPressedComboInput = true;
+	}
+}
+
 void APlayerCharacter::AddControllerPitchInput(float Val)
 {
 	if (!IsInputEnable)
+		return;
+
+	if (!IsValid(SpringArmComp))
 		return;
 
 	FRotator NewRotation = SpringArmComp->GetComponentRotation();
@@ -138,7 +201,13 @@ void APlayerCharacter::AddControllerYawInput(float Val)
 
 void APlayerCharacter::RotateMouseWheel(float Val)
 {
+	if (!IsInputEnable)
+		return;
+	if (!IsValid(SpringArmComp))
+		return;
+
 	//UE_LOG(LogTemp, Warning, TEXT("RotateMouseWheel : %f"), Val);
 	float newArmLength = FMath::Clamp(SpringArmComp->TargetArmLength + Val * ZOOM_FACTOR * (-1), ZOOM_MIN, ZOOM_MAX);
 	SpringArmComp->TargetArmLength = newArmLength;
 }
+// [end] Input Delegate

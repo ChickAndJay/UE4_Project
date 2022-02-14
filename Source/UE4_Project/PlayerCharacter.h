@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UE4_Project.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -37,8 +37,6 @@ private:
 	UPROPERTY()
 	class UKwangAnimInstance* KwangAnimInstance;
 
-	bool IsInputEnable = false;
-	
 	UPROPERTY(EditAnywhere)
 	float ZOOM_FACTOR = 10.0f;
 	UPROPERTY(EditAnywhere)
@@ -50,6 +48,22 @@ private:
 	float ROT_LOOK_UP_MIN = -80.0f;
 	UPROPERTY(EditAnywhere)
 	float ROT_LOOK_UP_MAX = 30.0f;
+
+	int MAX_COMBO_COUNT = 4;
+private:
+	bool IsInputEnable;
+
+	bool IsAttacking;
+	bool IsPressedComboInput;
+	int ComboCount;
+
+public:
+	void SetStartAttackState();
+	void SetEndAttackState();
+
+	void CheckNextAttack();
+	void ResetCombo();
+
 public:
 	UFUNCTION()
 	void MoveForward(float Value);
@@ -62,7 +76,10 @@ public:
 	void StopJump();
 
 	UFUNCTION()
-	void SetInputEnable(UAnimMontage* Montage, bool bInterrupted)
+	void Attack();
+
+	UFUNCTION()
+	void SetInputEnable()
 	{
 		IsInputEnable = true;
 	}

@@ -6,10 +6,45 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+UKwangAnimInstance::UKwangAnimInstance()
+{
+	TArray<FString> PostFixList;
+	PostFixList.Add("A");
+	PostFixList.Add("B");
+	PostFixList.Add("C");
+	PostFixList.Add("D");
+
+	for (int idx = 0; idx < PostFixList.Num(); idx++)
+	{
+		FString AttackMontagePath = 
+			FString::Printf(
+				TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/PrimaryAttack_%s_Slow_Montage.PrimaryAttack_%s_Slow_Montage"), 
+				*PostFixList[idx], 
+				*PostFixList[idx]);
+		
+		//MYLOG(TEXT("%s"), *AttackMontagePath);
+
+		ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(*AttackMontagePath);
+		if (ATTACK_MONTAGE.Succeeded())
+		{
+			AttackAnimMontageArray.Add(ATTACK_MONTAGE.Object);
+		}
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> LEVEL_START_MONTAGE(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/LevelStart_Montage.LevelStart_Montage"));
+	if (LEVEL_START_MONTAGE.Succeeded())
+	{
+		LevelStartMontage = LEVEL_START_MONTAGE.Object;
+	}
+
+	IsAccelerating = false;
+	IsAttacking = false;
+	RotationLastTick = FRotator::ZeroRotator;
+}
+
 void UKwangAnimInstance::NativeBeginPlay()
 {
-	IsAccelerating = false;
-	RotationLastTick = FRotator::ZeroRotator;
+	Super::NativeBeginPlay();
 
 	APlayerCharacter* Owner = Cast<APlayerCharacter>(TryGetPawnOwner());
 	if (IsValid(Owner))
@@ -17,6 +52,8 @@ void UKwangAnimInstance::NativeBeginPlay()
 		OwnerPlayerCharacter = Owner;
 		CharacterMovementComponent = Owner->GetCharacterMovement();
 	}
+
+	Montage_Play(LevelStartMontage);
 }
 
 void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -64,4 +101,25 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		else
 			IsInAir = false;
 	}
+}
+
+void UKwangAnimInstance::PlayAttack(int combo)
+{
+	IsAttacking = true;
+	Montage_Play(AttackAnimMontageArray[combo - 1]);
+}
+
+void UKwangAnimInstance::Animnotify_EndLevelStartMontage()
+{
+	OwnerPlayerCharacter->SetInputEnable();
+}
+
+void UKwangAnimInstance::Animnotify_SaveAttack()
+{
+	OnSaveAttack.Broadcast();
+}
+
+void UKwangAnimInstance::Animnotify_ResetCombo()
+{
+	OnResetCombo.Broadcast();
 }

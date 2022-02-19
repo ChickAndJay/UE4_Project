@@ -33,28 +33,34 @@ private:
 	class USpringArmComponent* SpringArmComp;
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
-
 	UPROPERTY()
 	class UKwangAnimInstance* KwangAnimInstance;
+	UPROPERTY()
+	class UPlayerStatComponent* PlayerStatComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ZOOM_FACTOR = 10.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ZOOM_MIN = 150.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ZOOM_MAX = 800.0f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ROT_LOOK_UP_MIN = -80.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ROT_LOOK_UP_MAX = 30.0f;
 
 	int MAX_COMBO_COUNT = 4;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = MovingFactor)
 	float MAX_JOG_VALUE = 600.0f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = MovingFactor)
 	float MAX_SPRINT_FACTOR = 1000.0f;
+
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRange;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRadius;
 private:
 	bool IsInputEnable;
 
@@ -80,6 +86,8 @@ public:
 	{
 		return IsForwardRunning;
 	}
+
+	int GetAttackDamage();
 public:
 	UFUNCTION()
 	void SetSprint();
@@ -106,4 +114,7 @@ public:
 	virtual void AddControllerYawInput(float Val) override;
 
 	void RotateMouseWheel(float Val);
+
+	void AttackCheck();
+
 };

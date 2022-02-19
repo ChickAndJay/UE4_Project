@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "KwangAnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
+#include "PlayerStatComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -38,11 +40,18 @@ APlayerCharacter::APlayerCharacter()
 	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/CustomContent/Character/Kwang/Animation/Kwang_AnimBlueprint_Custom.Kwang_AnimBlueprint_Custom_C"));
 	if (BP_ANIM.Succeeded())
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
+
+	PlayerStatComp = CreateDefaultSubobject<UPlayerStatComponent>(TEXT("PLAYER STAT"));
+
+	InitializeValues();
 }
 
 void APlayerCharacter::InitializeValues()
 {
 	JumpMaxHoldTime = 0.15f;
+	
+	AttackRange = 80.0f;
+	AttackRadius = 50.0f;
 }
 
 // Called when the game starts or when spawned
@@ -116,6 +125,7 @@ void APlayerCharacter::CheckNextAttack()
 		if (ComboCount > MAX_COMBO_COUNT)
 			ComboCount = 1;
 		KwangAnimInstance->PlayAttack(ComboCount);
+		AttackCheck();
 	}
 }
 
@@ -136,6 +146,53 @@ void APlayerCharacter::SetEndAttackState()
 	IsPressedComboInput = false;
 	IsAttacking = false;
 	ComboCount = 0;
+}
+
+void APlayerCharacter::AttackCheck()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * AttackRange,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params
+	);
+
+#if ENABLE_DRAW_DEBUG
+	FVector TraceVec = GetActorForwardVector() * AttackRange;
+	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+	float HalfHeight = AttackRange * 0.5f + AttackRadius;
+	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
+	float DebugLifeTime = 5.0f;
+
+	DrawDebugCapsule(GetWorld(),
+		Center,
+		HalfHeight,
+		AttackRadius,
+		CapsuleRot,
+		DrawColor,
+		false,
+		DebugLifeTime);
+#endif
+
+	if (bResult)
+	{
+		if (HitResult.Actor.IsValid())
+		{
+			FDamageEvent DamageEvent;
+			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+		}
+	}
+}
+
+int APlayerCharacter::GetAttackDamage()
+{
+	return 10;
 }
 
 //////////////////////// [begin] Input Delegate
@@ -193,6 +250,7 @@ void APlayerCharacter::Attack()
 		SetStartAttackState();
 
 		KwangAnimInstance->PlayAttack(ComboCount);
+		AttackCheck();
 	}
 	else
 	{

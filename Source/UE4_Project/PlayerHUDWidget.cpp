@@ -7,10 +7,10 @@
 
 void UPlayerHUDWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	HPBarWidget = Cast<UPlayerStatusBarWidget>(GetWidgetFromName(TEXT("PlayerHPBar")));
 	StaminaWidget = Cast<UPlayerStatusBarWidget>(GetWidgetFromName(TEXT("PlayerStaminaBar")));
-
-
 }
 
 void UPlayerHUDWidget::BindPlayerStat(UPlayerStatComponent* NewPlayerStatComp)

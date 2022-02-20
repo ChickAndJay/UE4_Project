@@ -19,7 +19,6 @@ void AKwangPlayerController::BeginPlay()
 	if (IsValid(PlayerHUDWidget))
 	{
 		PlayerHUDWidget->AddToViewport(1);
-
 	}
 }
 

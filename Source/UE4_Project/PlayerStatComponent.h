@@ -43,12 +43,15 @@ public:
 
 	void UpdateStamina();
 	void ReduceStaminaByAttack();
+
+	bool IsEnableAttack();
 private:
+	TWeakObjectPtr<class APlayerCharacter> OwnerPlayerCharacter;
 
 	const int ADDITIONAL_HP_PER_LEVEL = 100;
 	const int MAX_LEVEL = 5;	
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
-	int STAMINA_PER_ATTACK = 20;
+	float STAMINA_PER_ATTACK = 20;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;
@@ -70,4 +73,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
 	float AdditionalStaminaPerTick;
+	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
+	float ReductionalStaminaPerSprinting;
+
 };

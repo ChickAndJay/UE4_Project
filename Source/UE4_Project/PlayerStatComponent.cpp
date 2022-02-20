@@ -2,6 +2,8 @@
 
 
 #include "PlayerStatComponent.h"
+#include "PlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UPlayerStatComponent::UPlayerStatComponent()
@@ -22,7 +24,7 @@ UPlayerStatComponent::UPlayerStatComponent()
 	AttackDamage = 10;
 
 	AdditionalStaminaPerTick = 0.2f;
-
+	ReductionalStaminaPerSprinting = 0.2f;
 	// ...
 }
 
@@ -32,8 +34,7 @@ void UPlayerStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OwnerPlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
 
@@ -110,10 +111,30 @@ int UPlayerStatComponent::GetAttackDamage()
 
 void UPlayerStatComponent::UpdateStamina()
 {
-	CurrentStamina = FMath::Clamp<float>(CurrentStamina + AdditionalStaminaPerTick, 0, MaxStamina);
+	if (OwnerPlayerCharacter.IsValid())
+	{
+		FVector Acceleration = OwnerPlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
+		if (OwnerPlayerCharacter->GetIsSprinting() && Acceleration.Size() > 0)
+		{
+			CurrentStamina = FMath::Clamp<float>(CurrentStamina - ReductionalStaminaPerSprinting, 0, MaxStamina);
+		}
+		else
+		{
+			CurrentStamina = FMath::Clamp<float>(CurrentStamina + AdditionalStaminaPerTick, 0, MaxStamina);
+		}
+	}
+	else
+	{
+		CurrentStamina = FMath::Clamp<float>(CurrentStamina + AdditionalStaminaPerTick, 0, MaxStamina);
+	}
 }
 
 void UPlayerStatComponent::ReduceStaminaByAttack()
 {
 	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_ATTACK, 0, MaxStamina);
+}
+
+bool UPlayerStatComponent::IsEnableAttack()
+{
+	return CurrentStamina >= STAMINA_PER_ATTACK;
 }

@@ -53,7 +53,7 @@ void APlayerCharacter::InitializeValues()
 {
 	JumpMaxHoldTime = 0.15f;
 	
-	AttackRange = 150.0f;
+	AttackRange = 200.0f;
 	AttackRadius = 50.0f;
 }
 
@@ -293,6 +293,8 @@ void APlayerCharacter::Attack()
 		return;
 	if (!IsValid(KwangAnimInstance))
 		return;
+	if (!PlayerStatComp->IsEnableAttack())
+		return;
 
 	if (!IsAttacking)
 	{		
@@ -340,11 +342,17 @@ void APlayerCharacter::RotateMouseWheel(float Val)
 
 void APlayerCharacter::SetSprint()
 {
+	if (!IsInputEnable)
+		return;
+
 	IsSprinting = true;
 }
 
 void APlayerCharacter::UnsetSprint()
 {
+	if (!IsInputEnable)
+		return;
+	
 	IsSprinting = false;
 }
 // [end] Input Delegate

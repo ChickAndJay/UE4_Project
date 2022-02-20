@@ -29,15 +29,6 @@ public:
 
 	virtual void PostInitializeComponents() override;
 private:
-	UPROPERTY(EditAnywhere)
-	class USpringArmComponent* SpringArmComp;
-	UPROPERTY(EditAnywhere)
-	class UCameraComponent* Camera;
-	UPROPERTY()
-	class UKwangAnimInstance* KwangAnimInstance;	
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	class UPlayerStatComponent* PlayerStatComp;
-
 	UPROPERTY(EditAnywhere, Category = CameraFactor)
 	float ZOOM_FACTOR = 10.0f;
 	UPROPERTY(EditAnywhere, Category = CameraFactor)
@@ -51,11 +42,26 @@ private:
 	float ROT_LOOK_UP_MAX = 30.0f;
 
 	int MAX_COMBO_COUNT = 4;
-	
+
 	UPROPERTY(EditAnywhere, Category = MovingFactor)
 	float MAX_JOG_VALUE = 600.0f;
 	UPROPERTY(EditAnywhere, Category = MovingFactor)
 	float MAX_SPRINT_FACTOR = 1000.0f;
+
+	UPROPERTY(EditAnywhere)
+	class USpringArmComponent* SpringArmComp;
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* Camera;
+	UPROPERTY()
+	class UKwangAnimInstance* KwangAnimInstance;	
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	class UPlayerStatComponent* PlayerStatComp;	
+
+	UPROPERTY()
+	class AKwangPlayerController* KwangPlayerController;
+
+	UPROPERTY()
+	TWeakObjectPtr<class UPlayerHUDWidget> PlayerHUDWidget;
 
 	UPROPERTY(EditAnywhere, Category = Attack)
 	float AttackRange;
@@ -76,6 +82,7 @@ public:
 	void SetStartAttackState();
 	void SetEndAttackState();
 
+	void PlayerAttack();
 	void CheckNextAttack();
 	void ResetCombo();
 

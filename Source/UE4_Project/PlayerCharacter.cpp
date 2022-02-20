@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 #include "PlayerStatComponent.h"
+#include "KwangPlayerController.h"
+#include "PlayerHUDWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -72,12 +74,21 @@ void APlayerCharacter::BeginPlay()
 	IsForwardRunning = true;
 
 	CharacterState = ECharacterState::ALIVE;
+
+	KwangPlayerController = Cast<AKwangPlayerController>(GetController());
+	PlayerHUDWidget = KwangPlayerController->GetPlayerHUDWidget();
+	PlayerHUDWidget->BindPlayerStat(PlayerStatComp);
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (CharacterState == ECharacterState::ALIVE)
+	{
+		PlayerHUDWidget->UpdatePlayerStaminaStatus();
+	}
 }
 
 // Called to bind functionality to input
@@ -119,6 +130,15 @@ void APlayerCharacter::SetInputEnable()
 	IsInputEnable = true;
 }
 
+void APlayerCharacter::PlayerAttack()
+{
+	PlayerStatComp->ReduceStaminaByAttack();
+	PlayerHUDWidget->UpdatePlayerStaminaStatus();
+
+	KwangAnimInstance->PlayAttack(ComboCount);
+	AttackCheck();
+}
+
 void APlayerCharacter::CheckNextAttack()
 {
 	if (IsPressedComboInput)
@@ -127,8 +147,7 @@ void APlayerCharacter::CheckNextAttack()
 		ComboCount++;
 		if (ComboCount > MAX_COMBO_COUNT)
 			ComboCount = 1;
-		KwangAnimInstance->PlayAttack(ComboCount);
-		AttackCheck();
+		PlayerAttack();
 	}
 }
 
@@ -214,6 +233,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 		CharacterState = ECharacterState::DEAD;
 		KillPlayer();
 	}
+
+	PlayerHUDWidget->UpdatePlayerHPStatus();
+
 	return Damage;
 }
 
@@ -276,8 +298,7 @@ void APlayerCharacter::Attack()
 	{		
 		SetStartAttackState();
 
-		KwangAnimInstance->PlayAttack(ComboCount);
-		AttackCheck();
+		PlayerAttack();
 	}
 	else
 	{

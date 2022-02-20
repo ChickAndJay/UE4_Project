@@ -12,7 +12,7 @@ UPlayerStatComponent::UPlayerStatComponent()
 
 	MaxHP = 100;
 	MaxExp = 50;
-	MaxStamina = 50;
+	MaxStamina = 50.0f;
 
 	CurrentHP = MaxHP;
 	CurrentExp = 0;
@@ -21,7 +21,7 @@ UPlayerStatComponent::UPlayerStatComponent()
 
 	AttackDamage = 10;
 
-	AdditionalStaminaPerSec = 3;
+	AdditionalStaminaPerTick = 0.2f;
 
 	// ...
 }
@@ -42,6 +42,7 @@ void UPlayerStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	UpdateStamina();
 	// ...
 }
 
@@ -87,12 +88,32 @@ int UPlayerStatComponent::GetCurrentLevel()
 	return 0;
 }
 
-int UPlayerStatComponent::GetCurrentStamina()
+float UPlayerStatComponent::GetCurrentStamina()
 {
-	return 0;
+	return CurrentStamina;
+}
+
+float UPlayerStatComponent::GetHPRatio()
+{
+	return (float)CurrentHP / MaxHP;
+}
+
+float UPlayerStatComponent::GetStaminaRatio()
+{
+	return CurrentStamina / MaxStamina;
 }
 
 int UPlayerStatComponent::GetAttackDamage()
 {
 	return AttackDamage;
+}
+
+void UPlayerStatComponent::UpdateStamina()
+{
+	CurrentStamina = FMath::Clamp<float>(CurrentStamina + AdditionalStaminaPerTick, 0, MaxStamina);
+}
+
+void UPlayerStatComponent::ReduceStaminaByAttack()
+{
+	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_ATTACK, 0, MaxStamina);
 }

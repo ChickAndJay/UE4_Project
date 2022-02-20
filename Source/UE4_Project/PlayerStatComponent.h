@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UE4_Project.h"
 #include "Components/ActorComponent.h"
 #include "PlayerStatComponent.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4_PROJECT_API UPlayerStatComponent : public UActorComponent
@@ -35,19 +34,28 @@ public:
 	int GetCurrentHP();
 	void GetCurrentExp();
 	int GetCurrentLevel();
-	int GetCurrentStamina();
+	float GetCurrentStamina();
+
+	float GetHPRatio();
+	float GetStaminaRatio();
+
 	int GetAttackDamage();
+
+	void UpdateStamina();
+	void ReduceStaminaByAttack();
 private:
 
 	const int ADDITIONAL_HP_PER_LEVEL = 100;
 	const int MAX_LEVEL = 5;	
+	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
+	int STAMINA_PER_ATTACK = 20;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxExp;
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
-	int MaxStamina;
+	float MaxStamina;
 
 	UPROPERTY(EditInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int CurrentHP;
@@ -56,10 +64,10 @@ private:
 	UPROPERTY(EditInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int CurrentLevel;
 	UPROPERTY(EditInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
-	int CurrentStamina;
+	float CurrentStamina;
 	UPROPERTY(EditInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int AttackDamage;
 
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
-	int AdditionalStaminaPerSec;
+	float AdditionalStaminaPerTick;
 };

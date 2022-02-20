@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "MonsterStatComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnHPChangeDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnMonsterHPChangeDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4_PROJECT_API UMonsterStatComponent : public UActorComponent
@@ -32,7 +32,7 @@ public:
 	float GetHPRatio();
 	int GetAttackDamage();
 
-	FOnHPChangeDelegate OnHPChanged;
+	FOnMonsterHPChangeDelegate OnHPChanged;
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;

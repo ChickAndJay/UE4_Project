@@ -24,6 +24,6 @@ public:
 private:
 	TWeakObjectPtr<class UMonsterStatComponent> MonsterStat;
 
-	UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
 	class UProgressBar* HPProgressBarMonster;
 };

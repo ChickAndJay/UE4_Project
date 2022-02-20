@@ -14,4 +14,19 @@ class UE4_PROJECT_API AKwangPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	AKwangPlayerController();
+
+protected:	
+	virtual void BeginPlay() override;
+
+public:
+	class UPlayerHUDWidget* GetPlayerHUDWidget();
+
+protected:
+	UPROPERTY()
+	TSubclassOf<class UPlayerHUDWidget> PlayerHUDWidgetClass;
+private:
+	UPROPERTY()
+	class UPlayerHUDWidget* PlayerHUDWidget;
 };

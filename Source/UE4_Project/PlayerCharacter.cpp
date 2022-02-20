@@ -42,6 +42,7 @@ APlayerCharacter::APlayerCharacter()
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
 
 	PlayerStatComp = CreateDefaultSubobject<UPlayerStatComponent>(TEXT("PLAYER STAT"));
+	
 
 	InitializeValues();
 }
@@ -50,7 +51,7 @@ void APlayerCharacter::InitializeValues()
 {
 	JumpMaxHoldTime = 0.15f;
 	
-	AttackRange = 80.0f;
+	AttackRange = 150.0f;
 	AttackRadius = 50.0f;
 }
 
@@ -69,6 +70,8 @@ void APlayerCharacter::BeginPlay()
 
 	IsSprinting = false;
 	IsForwardRunning = true;
+
+	CharacterState = ECharacterState::ALIVE;
 }
 
 // Called every frame
@@ -192,7 +195,31 @@ void APlayerCharacter::AttackCheck()
 
 int APlayerCharacter::GetAttackDamage()
 {
-	return 10;
+	return PlayerStatComp->GetAttackDamage();
+}
+
+FVector APlayerCharacter::GetCameraLocation()
+{
+	return Camera->GetComponentLocation();
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInsTigator, AActor* DamageCause)
+{
+	int Damage = (int)Super::TakeDamage(DamageAmount, DamageEvent, EventInsTigator, DamageCause);
+
+	PlayerStatComp->AddDamage(Damage);
+
+	if (PlayerStatComp->GetCurrentHP() <= 0)
+	{
+		CharacterState = ECharacterState::DEAD;
+		KillPlayer();
+	}
+	return Damage;
+}
+
+void APlayerCharacter::KillPlayer()
+{
+
 }
 
 //////////////////////// [begin] Input Delegate

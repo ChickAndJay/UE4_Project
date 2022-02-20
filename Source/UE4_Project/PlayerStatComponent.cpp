@@ -47,8 +47,7 @@ void UPlayerStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UPlayerStatComponent::AddDamage(int Damage)
 {
-	CurrentHP -= Damage;
-
+	SetHP(CurrentHP - Damage);
 }
 
 void UPlayerStatComponent::SetHP(int NewHP)

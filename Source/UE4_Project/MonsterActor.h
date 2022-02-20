@@ -22,6 +22,27 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostInitializeComponents() override;
+public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInsTigator, AActor* DamageCause) override;
 
+	void KillMonster();
 private:
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	class UMonsterStatComponent* MonsterStatComp;
+	UPROPERTY()
+	class UMonsterAnimInstance* MonsterAnimInstance;
+
+	UPROPERTY(VisibleAnywhere, Category = UI)
+	class UWidgetComponent* HPBarWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	class APlayerCharacter* PlayerCharacter;
+
+	UPROPERTY(EditAnywhere)
+	float DeadDestroyDelay = 3.0f;
+
+	ECharacterState MonsterState;
+
+	FTimerHandle DeadTimerHandle = {};
 };

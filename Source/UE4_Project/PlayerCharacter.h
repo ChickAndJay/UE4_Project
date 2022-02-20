@@ -34,8 +34,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
 	UPROPERTY()
-	class UKwangAnimInstance* KwangAnimInstance;
-	UPROPERTY()
+	class UKwangAnimInstance* KwangAnimInstance;	
+	UPROPERTY(VisibleAnywhere, Category = Stat)
 	class UPlayerStatComponent* PlayerStatComp;
 
 	UPROPERTY(EditAnywhere, Category = CameraFactor)
@@ -70,6 +70,8 @@ private:
 
 	bool IsSprinting;
 	bool IsForwardRunning;
+
+	ECharacterState CharacterState;
 public:
 	void SetStartAttackState();
 	void SetEndAttackState();
@@ -88,6 +90,11 @@ public:
 	}
 
 	int GetAttackDamage();
+	FVector GetCameraLocation();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInsTigator, AActor* DamageCause) override;
+
+	void KillPlayer();
 public:
 	UFUNCTION()
 	void SetSprint();

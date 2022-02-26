@@ -25,6 +25,8 @@ public:
 
 		
 public:	
+	void InitCharacterStatData();
+
 	void SetHP(int NewHP);
 
 	void AddDamage(int Damage);

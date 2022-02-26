@@ -4,6 +4,7 @@
 #include "PlayerStatComponent.h"
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "CharacterDataManager.h"
 
 // Sets default values for this component's properties
 UPlayerStatComponent::UPlayerStatComponent()
@@ -34,6 +35,8 @@ void UPlayerStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InitCharacterStatData();
+
 	OwnerPlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
@@ -45,6 +48,15 @@ void UPlayerStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	UpdateStamina();
 	// ...
+}
+
+void UPlayerStatComponent::InitCharacterStatData()
+{
+	MaxHP = CharacterDataManager::GetInstance()->GetCharacterMaxHP(CurrentLevel);
+	MaxStamina = CharacterDataManager::GetInstance()->GetCharacterMaxStamina(CurrentLevel);
+	
+	CurrentHP = MaxHP;
+	CurrentStamina = MaxStamina;
 }
 
 void UPlayerStatComponent::AddDamage(int Damage)

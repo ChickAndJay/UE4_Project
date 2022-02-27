@@ -61,12 +61,12 @@ void UPlayerStatComponent::InitCharacterStatData()
 
 void UPlayerStatComponent::AddDamage(int Damage)
 {
-	SetHP(CurrentHP - Damage);
+	SetHP(FMath::Clamp<float>(CurrentHP - Damage, 0, MaxHP));
 }
 
 void UPlayerStatComponent::SetHP(int NewHP)
 {
-
+	CurrentHP = NewHP;
 }
 
 int UPlayerStatComponent::GetCurrentHP()

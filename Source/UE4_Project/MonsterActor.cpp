@@ -11,7 +11,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
-
+#include "MonsterAIController.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AMonsterActor::AMonsterActor()
@@ -47,7 +48,11 @@ AMonsterActor::AMonsterActor()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(65.0f);		
 
-	
+	AIControllerClass = AMonsterAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	AttackRange = 200.0f;
+	AttackRadius = 50.0f;
 }
 
 // Called when the game starts or when spawned
@@ -56,6 +61,9 @@ void AMonsterActor::BeginPlay()
 	Super::BeginPlay();
 
 	MonsterState = ECharacterState::ALIVE;
+
+	AIController = Cast<AMonsterAIController>(GetController());
+
 	UMonsterHPBarWidget* MonsterHPBar = Cast<UMonsterHPBarWidget>(HPBarWidget->GetUserWidgetObject());
 	if (IsValid(MonsterHPBar))
 	{
@@ -84,7 +92,7 @@ void AMonsterActor::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	MonsterAnimInstance = Cast<UMonsterAnimInstance>(GetMesh()->GetAnimInstance());
+	AnimInstance = Cast<UMonsterAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
 float AMonsterActor::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInsTigator, AActor* DamageCause)
@@ -101,9 +109,68 @@ float AMonsterActor::TakeDamage(float DamageAmount, struct FDamageEvent const& D
 	return Damage;
 }
 
+void AMonsterActor::Attack()
+{
+	PlayAttack();
+}
+
+void AMonsterActor::PlayAttack()
+{
+	AnimInstance->PlayAttack(1);
+	AttackCheck();
+}
+
+void AMonsterActor::AttackCheck()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * AttackRange,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params
+	);
+
+#if ENABLE_DRAW_DEBUG
+	FVector TraceVec = GetActorForwardVector() * AttackRange;
+	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+	float HalfHeight = AttackRange * 0.5f + AttackRadius;
+	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
+	float DebugLifeTime = 5.0f;
+
+	DrawDebugCapsule(GetWorld(),
+		Center,
+		HalfHeight,
+		AttackRadius,
+		CapsuleRot,
+		DrawColor,
+		false,
+		DebugLifeTime);
+#endif
+
+	if (bResult && HitResult.Actor.IsValid())
+	{
+		auto PlayerActor = Cast<APlayerCharacter>(HitResult.Actor);
+		if (PlayerActor != nullptr)
+		{
+			FDamageEvent DamageEvent;
+			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+		}
+	}
+}
+
+void AMonsterActor::StartAIRunning()
+{
+	AIController->RunAI();
+}
+
 void AMonsterActor::KillMonster()
 {
-	MonsterAnimInstance->SetDead();
+	AnimInstance->SetDead();
 	SetActorEnableCollision(false);
 	SetCanBeDamaged(false);
 	MYLOG_S();
@@ -116,4 +183,9 @@ void AMonsterActor::KillMonster()
 			DeadDestroyDelay,
 				false
 		);
+}
+
+int AMonsterActor::GetAttackDamage()
+{
+	return MonsterStatComp->GetAttackDamage();
 }

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UE4_Project.h"
 #include "Animation/AnimInstance.h"
 #include "KwangAnimInstance.generated.h"
 
@@ -23,36 +23,36 @@ public:
 	virtual void NativeBeginPlay() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-private:
+protected:
 	class UCharacterMovementComponent* CharacterMovementComponent;
-	class APlayerCharacter* OwnerPlayerCharacter;
+	class APlayerCharacter* OwnerActor;
 
 	// [begin] Move
 	const float LEAN_INTENSITY_FACTOR = 7.0f;
 	const float INTERP_SPEED = 6.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float Speed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsAccelerating;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsSprinting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsForward;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsInAir;	
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float Roll;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float Pitch;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float Yaw;
 
-	UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float YawDelta;
-	UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	FRotator RotationLastTick;
 	// [end] Move
 
@@ -64,9 +64,12 @@ private:
 	
 
 	// [begin] attack
-private:	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsAttacking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	bool IsDead;
 
 	FOnSaveAttackDelegate OnSaveAttack;
 	FOnResetComboDelegate OnResetCombo;
@@ -88,5 +91,6 @@ public:
 	void Animnotify_ResetCombo();
 
 	void PlayAttack(int combo);
+	void SetDead();
 	// [end] attack
 };

@@ -39,6 +39,7 @@ UKwangAnimInstance::UKwangAnimInstance()
 
 	IsAccelerating = false;
 	IsAttacking = false;
+	IsDead = false;
 	IsForward = true;
 
 	RotationLastTick = FRotator::ZeroRotator;
@@ -51,7 +52,7 @@ void UKwangAnimInstance::NativeBeginPlay()
 	APlayerCharacter* Owner = Cast<APlayerCharacter>(TryGetPawnOwner());
 	if (IsValid(Owner))
 	{
-		OwnerPlayerCharacter = Owner;
+		OwnerActor = Owner;
 		CharacterMovementComponent = Owner->GetCharacterMovement();
 	}
 
@@ -62,14 +63,14 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (IsValid(OwnerPlayerCharacter))
+	if (IsValid(OwnerActor))
 	{
 		// Calculate Speed
-		Speed = OwnerPlayerCharacter->GetVelocity().Size();
-		IsForward = OwnerPlayerCharacter->GetIsForwardRunning();
+		Speed = OwnerActor->GetVelocity().Size();
+		IsForward = OwnerActor->GetIsForwardRunning();
 		// Rool Pitch Yaw
-		FRotator AimRotation = OwnerPlayerCharacter->GetBaseAimRotation();
-		FRotator ActorRotation = OwnerPlayerCharacter->GetActorRotation();
+		FRotator AimRotation = OwnerActor->GetBaseAimRotation();
+		FRotator ActorRotation = OwnerActor->GetActorRotation();
 
 		FRotator DeltaBetweenAimActor = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, ActorRotation);
 		UKismetMathLibrary::BreakRotator(DeltaBetweenAimActor, Roll, Pitch, Yaw);
@@ -87,7 +88,7 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		RotationLastTick = ActorRotation;
 
-		IsSprinting = OwnerPlayerCharacter->GetIsSprinting();
+		IsSprinting = OwnerActor->GetIsSprinting();
 	}
 
 	if (IsValid(CharacterMovementComponent))
@@ -113,9 +114,14 @@ void UKwangAnimInstance::PlayAttack(int combo)
 	Montage_Play(AttackAnimMontageArray[combo - 1]);
 }
 
+void UKwangAnimInstance::SetDead()
+{
+	IsDead = true;
+}
+
 void UKwangAnimInstance::Animnotify_EndLevelStartMontage()
 {
-	OwnerPlayerCharacter->SetInputEnable();
+	OwnerActor->SetInputEnable();
 }
 
 void UKwangAnimInstance::Animnotify_SaveAttack()
@@ -125,5 +131,6 @@ void UKwangAnimInstance::Animnotify_SaveAttack()
 
 void UKwangAnimInstance::Animnotify_ResetCombo()
 {
+	IsAttacking = false;
 	OnResetCombo.Broadcast();
 }

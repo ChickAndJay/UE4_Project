@@ -44,15 +44,6 @@ void UMonsterStatComponent::SetHP(int NewHP)
 {
 	CurrentHP = NewHP;
 
-	if (CurrentHP <= 0)
-	{
-		/*AMonsterActor* Owner = Cast<AMonsterActor>(GetOwner());
-		if (IsValid(Owner))
-		{
-			Owner->KillMonster();
-		}*/
-	}
-
 	OnHPChanged.Broadcast();
 	MYLOG(TEXT("Monster CurrentHP : %d"), CurrentHP);
 }

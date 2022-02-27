@@ -26,15 +26,30 @@ public:
 public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInsTigator, AActor* DamageCause) override;
 
+	UFUNCTION()
+	void Attack();
+	void PlayAttack();
+	void AttackCheck();
+
+	void StartAIRunning();
+
 	void KillMonster();
+
+	int GetAttackDamage();
 private:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	class UMonsterStatComponent* MonsterStatComp;
 	UPROPERTY()
-	class UMonsterAnimInstance* MonsterAnimInstance;
-
+	class UMonsterAnimInstance* AnimInstance;
+	UPROPERTY()
+	class AMonsterAIController* AIController;
 	UPROPERTY(VisibleAnywhere, Category = UI)
 	class UWidgetComponent* HPBarWidget;
+
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRange;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRadius;
 
 	UPROPERTY(VisibleAnywhere)
 	class APlayerCharacter* PlayerCharacter;

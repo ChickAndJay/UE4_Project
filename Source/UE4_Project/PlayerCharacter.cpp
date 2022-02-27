@@ -13,6 +13,7 @@
 #include "PlayerStatComponent.h"
 #include "KwangPlayerController.h"
 #include "PlayerHUDWidget.h"
+#include "MonsterActor.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -185,7 +186,7 @@ void APlayerCharacter::AttackCheck()
 		GetActorLocation(),
 		GetActorLocation() + GetActorForwardVector() * AttackRange,
 		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel2,
+		ECollisionChannel::ECC_GameTraceChannel1,
 		FCollisionShape::MakeSphere(AttackRadius),
 		Params
 	);
@@ -216,6 +217,16 @@ void APlayerCharacter::AttackCheck()
 			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
 		}
 	}
+
+	if (bResult && HitResult.Actor.IsValid())
+	{
+		auto MonsterActor = Cast<AMonsterActor>(HitResult.Actor);
+		if (MonsterActor != nullptr)
+		{
+			FDamageEvent DamageEvent;
+			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+		}
+	}
 }
 
 int APlayerCharacter::GetAttackDamage()
@@ -232,6 +243,8 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 {
 	int Damage = (int)Super::TakeDamage(DamageAmount, DamageEvent, EventInsTigator, DamageCause);
 
+	MYLOG(TEXT("%d"), Damage);
+
 	PlayerStatComp->AddDamage(Damage);
 
 	if (PlayerStatComp->GetCurrentHP() <= 0)
@@ -247,7 +260,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 
 void APlayerCharacter::KillPlayer()
 {
-
+	KwangAnimInstance->SetDead();
+	SetActorEnableCollision(false);
+	SetCanBeDamaged(false);
 }
 
 //////////////////////// [begin] Input Delegate

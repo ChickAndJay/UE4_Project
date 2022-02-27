@@ -78,6 +78,7 @@ void APlayerCharacter::BeginPlay()
 	KwangPlayerController = Cast<AKwangPlayerController>(GetController());
 	PlayerHUDWidget = KwangPlayerController->GetPlayerHUDWidget();
 	PlayerHUDWidget->BindPlayerStat(PlayerStatComp);
+	PlayerHUDWidget->UpdatePlayerHPStatus();
 }
 
 // Called every frame
@@ -87,6 +88,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (CharacterState == ECharacterState::ALIVE)
 	{
+		if (PlayerStatComp->GetCurrentStamina() <= KINDA_SMALL_NUMBER)
+		{
+			IsSprinting = false;
+		}
+
 		PlayerHUDWidget->UpdatePlayerStaminaStatus();
 	}
 }

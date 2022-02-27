@@ -96,6 +96,16 @@ void UPlayerStatComponent::AddLevel()
 {
 }
 
+int UPlayerStatComponent::GetMaxHP()
+{
+	return MaxHP;
+}
+
+float UPlayerStatComponent::GetMaxStamina()
+{
+	return MaxStamina;
+}
+
 int UPlayerStatComponent::GetCurrentLevel()
 {
 	return 0;

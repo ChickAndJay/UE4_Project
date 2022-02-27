@@ -17,15 +17,22 @@ class UE4_PROJECT_API UPlayerHUDWidget : public UUserWidget
 private:
 	TWeakObjectPtr<class UPlayerStatComponent> PlayerStatComp;
 
+	UPROPERTY()
+	class UPlayerStatusBarWidget* HPBarWidget;
+	UPROPERTY()
+	class UPlayerStatusBarWidget* StaminaWidget;
+
+	UPROPERTY()
+	class UTextBlock* HPTextBlock;
+	UPROPERTY()
+	class UTextBlock* StaminaTextBlock;
 protected:
 	virtual void NativeConstruct() override;
 public:
 	void BindPlayerStat(class UPlayerStatComponent* NewPlayerStatComp);
 
+	UFUNCTION()
 	void UpdatePlayerHPStatus();
 	UFUNCTION()
 	void UpdatePlayerStaminaStatus();
-
-	class UPlayerStatusBarWidget* HPBarWidget;
-	class UPlayerStatusBarWidget* StaminaWidget;
 };

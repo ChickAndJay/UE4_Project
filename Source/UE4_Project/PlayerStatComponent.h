@@ -33,6 +33,8 @@ public:
 	bool AddExp(int AdditionalExp);
 	void AddLevel();
 
+	int GetMaxHP();
+	float GetMaxStamina();
 	int GetCurrentHP();
 	void GetCurrentExp();
 	int GetCurrentLevel();
@@ -50,8 +52,7 @@ public:
 private:
 	TWeakObjectPtr<class APlayerCharacter> OwnerPlayerCharacter;
 
-	const int ADDITIONAL_HP_PER_LEVEL = 100;
-	const int MAX_LEVEL = 5;	
+	const int MAX_LEVEL = 5;
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	float STAMINA_PER_ATTACK = 20;
 

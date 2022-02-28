@@ -5,6 +5,9 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Sight.h"
+#include "BlackBoardKeys.h"
 
 AMonsterAIController::AMonsterAIController()
 {
@@ -19,11 +22,44 @@ AMonsterAIController::AMonsterAIController()
 	{
 		MonsterBT = BTObject.Object;
 	}
+
+	// perception
+	auto PerceptionComp = CreateOptionalDefaultSubobject<UAIPerceptionComponent>(TEXT("MONSTER AI PERCEPTION"));
+	if (PerceptionComp != nullptr)
+	{
+		SetPerceptionComponent(*PerceptionComp);
+		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIController::OnTargetDetected);
+	}
+
+	SightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("PERCEPTION SIGHT CONFIG"));
+	if (SightConfig != nullptr)
+	{
+		SightConfig->SightRadius = 1000.0f;
+		SightConfig->LoseSightRadius = 1000.0f;
+		SightConfig->PeripheralVisionAngleDegrees = 30.0f;
+		SightConfig->SetMaxAge(0.0f);
+		SightConfig->AutoSuccessRangeFromLastSeenLocation = -1.0f;
+
+		SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+		SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+		SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+			
+		if (PerceptionComp != nullptr)
+		{
+			PerceptionComp->SetDominantSense(*SightConfig->GetSenseImplementation());
+			PerceptionComp->ConfigureSense(*SightConfig);
+		}
+	}
+}
+
+void AMonsterAIController::OnTargetDetected(AActor* actor, FAIStimulus Stimulus)
+{
+	auto blackboard = GetBlackboardComponent();
+	blackboard->SetValueAsObject(BlackBoardKeys::TargetKey, actor);
 }
 
 void AMonsterAIController::RunAI()
 {
-	MYLOG_S();
 	if (UseBlackboard(MonsterBB, Blackboard))
 	{
 		//Blackboard->SetValueAsVector(HomePosKey, GetPawn()->GetActorLocation());

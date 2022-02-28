@@ -3,6 +3,7 @@
 
 #include "PlayerHUDWidget.h"
 #include "PlayerStatusBarWidget.h"
+#include "PlayerHUDInfoButton.h"
 #include "PlayerStatComponent.h"
 #include "Components/TextBlock.h"
 
@@ -12,6 +13,9 @@ void UPlayerHUDWidget::NativeConstruct()
 
 	HPBarWidget = Cast<UPlayerStatusBarWidget>(GetWidgetFromName(TEXT("PlayerHPBar")));
 	StaminaWidget = Cast<UPlayerStatusBarWidget>(GetWidgetFromName(TEXT("PlayerStaminaBar")));
+	ExpWidget = Cast<UPlayerStatusBarWidget>(GetWidgetFromName(TEXT("PlayerExp")));
+
+	InfoButtonWidget = Cast<UPlayerHUDInfoButton>(GetWidgetFromName(TEXT("HUDInfoButton")));
 
 	HPTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("HPText")));
 	StaminaTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("StaminaText")));
@@ -23,6 +27,13 @@ void UPlayerHUDWidget::BindPlayerStat(UPlayerStatComponent* NewPlayerStatComp)
 	{
 		PlayerStatComp = NewPlayerStatComp;
 	}
+}
+
+void UPlayerHUDWidget::UpdatePlayerStatus()
+{
+	UpdatePlayerHPStatus();
+	UpdatePlayerExpStatus();
+	UpdatePlayerHUDInfo();
 }
 
 void UPlayerHUDWidget::UpdatePlayerHPStatus()
@@ -45,5 +56,21 @@ void UPlayerHUDWidget::UpdatePlayerStaminaStatus()
 
 		FString stminaText = FString::Printf(TEXT("%d / %d"), (int)PlayerStatComp->GetCurrentStamina(), (int)PlayerStatComp->GetMaxStamina());
 		StaminaTextBlock->SetText(FText::FromString(stminaText));
+	}
+}
+
+void UPlayerHUDWidget::UpdatePlayerExpStatus()
+{
+	if (IsValid(ExpWidget) && PlayerStatComp.IsValid())
+	{
+		ExpWidget->UpdateStatusWidget(PlayerStatComp->GetExpRatio());
+	}
+}
+
+void UPlayerHUDWidget::UpdatePlayerHUDInfo()
+{
+	if (IsValid(InfoButtonWidget) && PlayerStatComp.IsValid())
+	{
+		InfoButtonWidget->UpdatePlayerLevel(PlayerStatComp->GetCurrentLevel());
 	}
 }

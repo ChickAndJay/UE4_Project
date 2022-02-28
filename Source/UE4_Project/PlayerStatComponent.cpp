@@ -14,7 +14,7 @@ UPlayerStatComponent::UPlayerStatComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	MaxHP = 100;
-	MaxExp = 50;
+	MaxExp = MAX_EXP;
 	MaxStamina = 50.0f;
 
 	CurrentHP = MaxHP;
@@ -80,6 +80,7 @@ bool UPlayerStatComponent::AddExp(int AdditionalExp)
 
 	if (CurrentExp > MaxExp)
 	{
+		AddLevel();
 		return true;
 	}
 	else
@@ -88,12 +89,15 @@ bool UPlayerStatComponent::AddExp(int AdditionalExp)
 	}
 }
 
-void UPlayerStatComponent::GetCurrentExp()
+int UPlayerStatComponent::GetCurrentExp()
 {
+	return CurrentExp;
 }
 
 void UPlayerStatComponent::AddLevel()
 {
+	if(CurrentLevel < MAX_LEVEL)
+		CurrentLevel++;
 }
 
 int UPlayerStatComponent::GetMaxHP()
@@ -106,9 +110,14 @@ float UPlayerStatComponent::GetMaxStamina()
 	return MaxStamina;
 }
 
+int UPlayerStatComponent::GetMaxExp()
+{
+	return MaxExp;
+}
+
 int UPlayerStatComponent::GetCurrentLevel()
 {
-	return 0;
+	return CurrentLevel;
 }
 
 float UPlayerStatComponent::GetCurrentStamina()
@@ -124,6 +133,11 @@ float UPlayerStatComponent::GetHPRatio()
 float UPlayerStatComponent::GetStaminaRatio()
 {
 	return CurrentStamina / MaxStamina;
+}
+
+float UPlayerStatComponent::GetExpRatio()
+{
+	return (float)CurrentExp / MaxExp;
 }
 
 int UPlayerStatComponent::GetAttackDamage()
@@ -159,4 +173,9 @@ void UPlayerStatComponent::ReduceStaminaByAttack()
 bool UPlayerStatComponent::IsEnableAttack()
 {
 	return CurrentStamina >= STAMINA_PER_ATTACK;
+}
+
+bool UPlayerStatComponent::IsMaxLevel()
+{
+	return CurrentLevel == MAX_LEVEL;
 }

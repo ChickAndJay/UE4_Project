@@ -35,13 +35,15 @@ public:
 
 	int GetMaxHP();
 	float GetMaxStamina();
+	int GetMaxExp();
 	int GetCurrentHP();
-	void GetCurrentExp();
+	int GetCurrentExp();
 	int GetCurrentLevel();
 	float GetCurrentStamina();
 
 	float GetHPRatio();
 	float GetStaminaRatio();
+	float GetExpRatio();
 
 	int GetAttackDamage();
 
@@ -49,10 +51,12 @@ public:
 	void ReduceStaminaByAttack();
 
 	bool IsEnableAttack();
+	bool IsMaxLevel();
 private:
 	TWeakObjectPtr<class APlayerCharacter> OwnerPlayerCharacter;
 
 	const int MAX_LEVEL = 5;
+	const int MAX_EXP = 50;
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	float STAMINA_PER_ATTACK = 20;
 

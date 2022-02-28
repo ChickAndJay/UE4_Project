@@ -32,8 +32,12 @@ public:
 	float GetHPRatio();
 	int GetAttackDamage();
 
+	int GetDropExp();
+
 	FOnMonsterHPChangeDelegate OnHPChanged;
 private:
+	const int DROP_EXP = 5;
+
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;
 	UPROPERTY(EditInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))

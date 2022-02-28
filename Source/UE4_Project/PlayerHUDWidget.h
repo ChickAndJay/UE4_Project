@@ -21,6 +21,10 @@ private:
 	class UPlayerStatusBarWidget* HPBarWidget;
 	UPROPERTY()
 	class UPlayerStatusBarWidget* StaminaWidget;
+	UPROPERTY()
+	class UPlayerStatusBarWidget* ExpWidget;
+	UPROPERTY()
+	class UPlayerHUDInfoButton* InfoButtonWidget;
 
 	UPROPERTY()
 	class UTextBlock* HPTextBlock;
@@ -32,7 +36,13 @@ public:
 	void BindPlayerStat(class UPlayerStatComponent* NewPlayerStatComp);
 
 	UFUNCTION()
+	void UpdatePlayerStatus();
+	UFUNCTION()
 	void UpdatePlayerHPStatus();
 	UFUNCTION()
 	void UpdatePlayerStaminaStatus();
+	UFUNCTION()
+	void UpdatePlayerExpStatus();
+	UFUNCTION()
+	void UpdatePlayerHUDInfo();
 };

@@ -14,6 +14,8 @@
 #include "KwangPlayerController.h"
 #include "PlayerHUDWidget.h"
 #include "MonsterActor.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -32,7 +34,10 @@ APlayerCharacter::APlayerCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("MAIN CAMERA"));
 	Camera->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
-		
+
+	AIPerceptionSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AI PERCEPTION SOURCE"));
+	AIPerceptionSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshObject(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Meshes/Kwang_GDC.Kwang_GDC"));
 	if (MeshObject.Succeeded())
 	{
@@ -79,7 +84,7 @@ void APlayerCharacter::BeginPlay()
 	KwangPlayerController = Cast<AKwangPlayerController>(GetController());
 	PlayerHUDWidget = KwangPlayerController->GetPlayerHUDWidget();
 	PlayerHUDWidget->BindPlayerStat(PlayerStatComp);
-	PlayerHUDWidget->UpdatePlayerHPStatus();
+	PlayerHUDWidget->UpdatePlayerStatus();
 }
 
 // Called every frame
@@ -224,7 +229,13 @@ void APlayerCharacter::AttackCheck()
 		if (MonsterActor != nullptr)
 		{
 			FDamageEvent DamageEvent;
-			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+			MonsterActor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+			if (MonsterActor->IsMonsterDead())
+			{
+				int DropExp = MonsterActor->GetDropExp();
+				PlayerStatComp->AddExp(DropExp);
+				PlayerHUDWidget->UpdatePlayerExpStatus();
+			}
 		}
 	}
 }

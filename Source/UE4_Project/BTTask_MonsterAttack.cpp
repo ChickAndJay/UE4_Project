@@ -13,8 +13,6 @@ UBTTask_MonsterAttack::UBTTask_MonsterAttack()
 
 EBTNodeResult::Type UBTTask_MonsterAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
-
 	auto Monster = Cast<AMonsterActor>(OwnerComp.GetAIOwner()->GetPawn());
 	if (Monster == nullptr)
 		return EBTNodeResult::Failed;
@@ -26,5 +24,4 @@ EBTNodeResult::Type UBTTask_MonsterAttack::ExecuteTask(UBehaviorTreeComponent& O
 
 void UBTTask_MonsterAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 }

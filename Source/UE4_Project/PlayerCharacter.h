@@ -56,6 +56,8 @@ private:
 	class UKwangAnimInstance* KwangAnimInstance;	
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	class UPlayerStatComponent* PlayerStatComp;	
+	UPROPERTY(VisibleAnywhere)
+	class UAIPerceptionStimuliSourceComponent* AIPerceptionSourceComponent;
 
 	UPROPERTY()
 	class AKwangPlayerController* KwangPlayerController;

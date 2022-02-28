@@ -4,6 +4,7 @@
 
 #include "UE4_Project.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "MonsterAIController.generated.h"
 
 /**
@@ -23,7 +24,13 @@ private:
 	UPROPERTY()
 	class UBlackboardData* MonsterBB;
 
+	UPROPERTY()
+	class UAISenseConfig_Sight* SightConfig;
+
 public:
+	UFUNCTION()
+	void OnTargetDetected(AActor* actor, FAIStimulus Stimulus);
+
 	void RunAI();
 	void StopAI();
 };

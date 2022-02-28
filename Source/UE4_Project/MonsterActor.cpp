@@ -13,6 +13,8 @@
 #include "Camera/CameraComponent.h"
 #include "MonsterAIController.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMonsterActor::AMonsterActor()
@@ -21,7 +23,7 @@ AMonsterActor::AMonsterActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	MonsterStatComp = CreateDefaultSubobject<UMonsterStatComponent>(TEXT("MONSTER STAT"));
-	
+
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP BAR WIDGET"));
 	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
 	HPBarWidget->SetDrawSize(FVector2D(120.0f, 20.0f));
@@ -48,11 +50,15 @@ AMonsterActor::AMonsterActor()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(65.0f);		
 
+	GetCharacterMovement()->MaxWalkSpeed = MAX_JOG_VALUE;
+
 	AIControllerClass = AMonsterAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	AttackRange = 200.0f;
 	AttackRadius = 50.0f;
+
+	IsDead = false;
 }
 
 // Called when the game starts or when spawned
@@ -84,7 +90,9 @@ void AMonsterActor::Tick(float DeltaTime)
 	if (PlayerCharacter != nullptr)
 	{
 		FVector CameraLocation = PlayerCharacter->GetCameraLocation();
-		HPBarWidget->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CameraLocation));
+		FRotator NewRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CameraLocation);
+		NewRotator.Pitch = 0;
+		HPBarWidget->SetWorldRotation(NewRotator);
 	}
 }
 
@@ -170,6 +178,8 @@ void AMonsterActor::StartAIRunning()
 
 void AMonsterActor::KillMonster()
 {
+	IsDead = true;
+
 	AnimInstance->SetDead();
 	SetActorEnableCollision(false);
 	SetCanBeDamaged(false);
@@ -188,4 +198,29 @@ void AMonsterActor::KillMonster()
 int AMonsterActor::GetAttackDamage()
 {
 	return MonsterStatComp->GetAttackDamage();
+}
+
+float AMonsterActor::GetAttackRange()
+{
+	return AttackRange;
+}
+
+bool AMonsterActor::IsMonsterDead()
+{
+	return IsDead;
+}
+
+int AMonsterActor::GetDropExp()
+{
+	return MonsterStatComp->GetDropExp();
+}
+
+void AMonsterActor::MoveTo(FVector ToLocation)
+{
+	FRotator NewRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ToLocation);
+	NewRotator.Pitch = 0;
+	SetActorRotation(NewRotator);
+
+	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), ToLocation);
+	AddMovementInput(Direction, 1.0f);
 }

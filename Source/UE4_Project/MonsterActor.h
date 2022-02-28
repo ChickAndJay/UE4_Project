@@ -19,6 +19,37 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	class UMonsterStatComponent* MonsterStatComp;
+	UPROPERTY()
+	class UMonsterAnimInstance* AnimInstance;
+	UPROPERTY()
+	class AMonsterAIController* AIController;
+	UPROPERTY(VisibleAnywhere, Category = UI)
+	class UWidgetComponent* HPBarWidget;
+
+	UPROPERTY(EditAnywhere, Category = MovingFactor)
+	float MAX_JOG_VALUE = 600.0f;
+
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRange;
+	UPROPERTY(EditAnywhere, Category = Attack)
+	float AttackRadius;
+
+	UPROPERTY(VisibleAnywhere)
+	class APlayerCharacter* PlayerCharacter;
+
+	UPROPERTY(EditAnywhere)
+	float DeadDestroyDelay = 3.0f;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsDead;
+
+	ECharacterState MonsterState;
+
+	FTimerHandle DeadTimerHandle = {};
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,28 +67,11 @@ public:
 	void KillMonster();
 
 	int GetAttackDamage();
-private:
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	class UMonsterStatComponent* MonsterStatComp;
-	UPROPERTY()
-	class UMonsterAnimInstance* AnimInstance;
-	UPROPERTY()
-	class AMonsterAIController* AIController;
-	UPROPERTY(VisibleAnywhere, Category = UI)
-	class UWidgetComponent* HPBarWidget;
+	float GetAttackRange();
+	int GetDropExp();
 
-	UPROPERTY(EditAnywhere, Category = Attack)
-	float AttackRange;
-	UPROPERTY(EditAnywhere, Category = Attack)
-	float AttackRadius;
+	bool IsMonsterDead();	
 
-	UPROPERTY(VisibleAnywhere)
-	class APlayerCharacter* PlayerCharacter;
-
-	UPROPERTY(EditAnywhere)
-	float DeadDestroyDelay = 3.0f;
-
-	ECharacterState MonsterState;
-
-	FTimerHandle DeadTimerHandle = {};
+	UFUNCTION()
+	void MoveTo(FVector ToLocation);
 };

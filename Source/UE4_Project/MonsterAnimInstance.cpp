@@ -91,6 +91,8 @@ void UMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			IsAccelerating = true;
 		else
 			IsAccelerating = false;
+
+		//MYLOG(TEXT("IsAccelerating : %s"), IsAccelerating ? TEXT("TRUE") : TEXT("FALSE"));
 	}
 }
 

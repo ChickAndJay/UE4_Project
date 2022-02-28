@@ -62,3 +62,8 @@ int UMonsterStatComponent::GetAttackDamage()
 {
 	return AttackDamage;
 }
+
+int UMonsterStatComponent::GetDropExp()
+{
+	return DROP_EXP;
+}

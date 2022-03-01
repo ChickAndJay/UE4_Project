@@ -1,6 +1,3 @@
-# UE4_Project
- Simple Project using UE4
-
 # UE4_Project - 간단한 액션 게임
 + 3인칭 액션 게임
 + 게임에 사용된 캐릭터 및 애니메이션은 마켓플레이스의 파라곤 게임 캐릭터 등을 사용함

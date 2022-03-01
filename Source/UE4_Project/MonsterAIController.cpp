@@ -36,7 +36,7 @@ AMonsterAIController::AMonsterAIController()
 	{
 		SightConfig->SightRadius = 1000.0f;
 		SightConfig->LoseSightRadius = 1000.0f;
-		SightConfig->PeripheralVisionAngleDegrees = 30.0f;
+		SightConfig->PeripheralVisionAngleDegrees = 360.0f;
 		SightConfig->SetMaxAge(0.0f);
 		SightConfig->AutoSuccessRangeFromLastSeenLocation = -1.0f;
 

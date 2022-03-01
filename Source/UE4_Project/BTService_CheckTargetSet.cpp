@@ -15,9 +15,5 @@ UBTService_CheckTargetSet::UBTService_CheckTargetSet()
 
 void UBTService_CheckTargetSet::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	/*auto TargetObject = OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackBoardKeys::TargetKey);
-	if (TargetObject != nullptr)
-	{
-		return 
-	}*/
+
 }

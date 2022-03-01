@@ -8,7 +8,7 @@
 UBTTask_MonsterAttack::UBTTask_MonsterAttack()
 {
 	NodeName = TEXT("CUSTOM MONSTER ATTACK");
-	//bNotifyTick = true;
+	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBTTask_MonsterAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -18,10 +18,15 @@ EBTNodeResult::Type UBTTask_MonsterAttack::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 
 	Monster->Attack();
+	AttackDeltaTime = 0.f;
 
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::InProgress;
 }
 
 void UBTTask_MonsterAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+	AttackDeltaTime += DeltaSeconds;
+
+	if(AttackDeltaTime >= ATTACK_DELAY)
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }

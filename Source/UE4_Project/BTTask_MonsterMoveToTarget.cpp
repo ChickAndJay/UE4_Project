@@ -23,7 +23,7 @@ EBTNodeResult::Type UBTTask_MonsterMoveToTarget::ExecuteTask(UBehaviorTreeCompon
 		return EBTNodeResult::Failed;
 
 	auto Owner = Cast<AMonsterActor>(OwnerComp.GetAIOwner()->GetPawn());
-	ArriveCheckTolerance = Owner->GetAttackRange();
+	ArriveCheckTolerance = Owner->GetAttackRange() - 50.0f;
 
 	MoveToLocation = Target->GetActorLocation();
 

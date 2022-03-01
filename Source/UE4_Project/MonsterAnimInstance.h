@@ -64,17 +64,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsDead;
 
+public:
 	FOnSaveAttackDelegate OnSaveAttack;
 	FOnResetComboDelegate OnResetCombo;
-public:
-	FORCEINLINE FOnSaveAttackDelegate& GetOnSaveAttackDelegate()
-	{
-		return OnSaveAttack;
-	}
-	FORCEINLINE FOnResetComboDelegate& GetOnResetComboDelegate()
-	{
-		return OnResetCombo;
-	}
 
 	UFUNCTION()
 	void Animnotify_EndLevelStartMontage();

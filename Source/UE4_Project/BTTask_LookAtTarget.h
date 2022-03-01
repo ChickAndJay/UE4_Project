@@ -4,21 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_MonsterAttack.generated.h"
+#include "BTTask_LookAtTarget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE4_PROJECT_API UBTTask_MonsterAttack : public UBTTaskNode
+class UE4_PROJECT_API UBTTask_LookAtTarget : public UBTTaskNode
 {
 	GENERATED_BODY()
-
-	const float ATTACK_DELAY = 1.0f;
-	float AttackDeltaTime = 0;
+	
 public:
-	UBTTask_MonsterAttack();
+	UBTTask_LookAtTarget();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 };

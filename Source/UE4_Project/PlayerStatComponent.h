@@ -49,8 +49,11 @@ public:
 
 	void UpdateStamina();
 	void ReduceStaminaByAttack();
+	void ReduceStaminaByJump();
 
 	bool IsEnableAttack();
+	bool IsEnableJump();
+	
 	bool IsMaxLevel();
 private:
 	TWeakObjectPtr<class APlayerCharacter> OwnerPlayerCharacter;
@@ -59,6 +62,8 @@ private:
 	const int MAX_EXP = 50;
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	float STAMINA_PER_ATTACK = 20;
+	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
+	float STAMINA_PER_JUMP = 20;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;

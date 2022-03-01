@@ -17,6 +17,7 @@ class UE4_PROJECT_API AMonsterAIController : public AAIController
 public:
 	AMonsterAIController();
 
+	virtual void BeginPlay() override;
 private:
 	UPROPERTY()
 	class UBehaviorTree* MonsterBT;
@@ -27,10 +28,15 @@ private:
 	UPROPERTY()
 	class UAISenseConfig_Sight* SightConfig;
 
+	UPROPERTY()
+	class UAIPerceptionComponent* AIPerceptionComp;
 public:
 	UFUNCTION()
 	void OnTargetDetected(AActor* actor, FAIStimulus Stimulus);
 
 	void RunAI();
 	void StopAI();
+
+	void EnableAIRunning();
+	void DisableAIRunning();
 };

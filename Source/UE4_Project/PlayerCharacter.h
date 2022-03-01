@@ -58,6 +58,8 @@ private:
 	class UPlayerStatComponent* PlayerStatComp;	
 	UPROPERTY(VisibleAnywhere)
 	class UAIPerceptionStimuliSourceComponent* AIPerceptionSourceComponent;
+	UPROPERTY()
+	class UParticleSystemComponent* ParticleSystemComp;
 
 	UPROPERTY()
 	class AKwangPlayerController* KwangPlayerController;

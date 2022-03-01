@@ -57,6 +57,8 @@ void UPlayerStatComponent::InitCharacterStatData()
 	
 	CurrentHP = MaxHP;
 	CurrentStamina = MaxStamina;
+
+	CurrentExp = 0;
 }
 
 void UPlayerStatComponent::AddDamage(int Damage)
@@ -76,9 +78,11 @@ int UPlayerStatComponent::GetCurrentHP()
 
 bool UPlayerStatComponent::AddExp(int AdditionalExp)
 {
-	CurrentExp += AdditionalExp;
+	if (IsMaxLevel())
+		return false;
 
-	if (CurrentExp > MaxExp)
+	CurrentExp += AdditionalExp;
+	if (CurrentExp >= MaxExp)
 	{
 		AddLevel();
 		return true;
@@ -98,6 +102,7 @@ void UPlayerStatComponent::AddLevel()
 {
 	if(CurrentLevel < MAX_LEVEL)
 		CurrentLevel++;
+	InitCharacterStatData();
 }
 
 int UPlayerStatComponent::GetMaxHP()
@@ -170,12 +175,22 @@ void UPlayerStatComponent::ReduceStaminaByAttack()
 	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_ATTACK, 0, MaxStamina);
 }
 
+void UPlayerStatComponent::ReduceStaminaByJump()
+{
+	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_JUMP, 0, MaxStamina);
+}
+
 bool UPlayerStatComponent::IsEnableAttack()
 {
 	return CurrentStamina >= STAMINA_PER_ATTACK;
 }
 
+bool UPlayerStatComponent::IsEnableJump()
+{
+	return CurrentStamina >= STAMINA_PER_JUMP;
+}
+
 bool UPlayerStatComponent::IsMaxLevel()
 {
-	return CurrentLevel == MAX_LEVEL;
+	return CurrentLevel >= MAX_LEVEL;
 }

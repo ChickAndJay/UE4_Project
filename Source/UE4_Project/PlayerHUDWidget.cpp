@@ -34,6 +34,7 @@ void UPlayerHUDWidget::UpdatePlayerStatus()
 	UpdatePlayerHPStatus();
 	UpdatePlayerExpStatus();
 	UpdatePlayerHUDInfo();
+	UpdatePlayerStaminaStatus();
 }
 
 void UPlayerHUDWidget::UpdatePlayerHPStatus()

@@ -167,13 +167,15 @@ void AMonsterActor::AttackCheck()
 		{
 			FDamageEvent DamageEvent;
 			HitResult.Actor->TakeDamage(GetAttackDamage(), DamageEvent, GetController(), this);
+
+			AnimInstance->PlayHitSoundRandom();
 		}
 	}
 }
 
 void AMonsterActor::StartAIRunning()
 {
-	AIController->RunAI();
+	AIController->EnableAIRunning();
 }
 
 void AMonsterActor::KillMonster()
@@ -188,11 +190,16 @@ void AMonsterActor::KillMonster()
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle,
 		FTimerDelegate::CreateLambda(
 			[this]()->void {
+				//AnimInstance->
 				Destroy();
 				}),
 			DeadDestroyDelay,
 				false
 		);
+
+	AIController->StopAI();
+
+	OnMonsterDead.Broadcast();
 }
 
 int AMonsterActor::GetAttackDamage()

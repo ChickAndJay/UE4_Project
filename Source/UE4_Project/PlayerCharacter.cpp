@@ -16,6 +16,7 @@
 #include "MonsterActor.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,6 +38,16 @@ APlayerCharacter::APlayerCharacter()
 
 	AIPerceptionSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AI PERCEPTION SOURCE"));
 	AIPerceptionSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
+
+	ParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("LEVEL UP PARTICLE SYSTEM"));
+	ParticleSystemComp->SetupAttachment(RootComponent);
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> LEVEL_UP_PARTICLE(TEXT("/Game/CustomContent/Character/Kwang/FX/LevelUp_FX.LevelUp_FX"));
+	if (LEVEL_UP_PARTICLE.Succeeded())
+	{
+		ParticleSystemComp->SetTemplate(LEVEL_UP_PARTICLE.Object);
+		ParticleSystemComp->bAutoActivate = false;
+	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshObject(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Meshes/Kwang_GDC.Kwang_GDC"));
 	if (MeshObject.Succeeded())
@@ -233,9 +244,17 @@ void APlayerCharacter::AttackCheck()
 			if (MonsterActor->IsMonsterDead())
 			{
 				int DropExp = MonsterActor->GetDropExp();
-				PlayerStatComp->AddExp(DropExp);
-				PlayerHUDWidget->UpdatePlayerExpStatus();
+				if (PlayerStatComp->AddExp(DropExp))
+				{
+					ParticleSystemComp->SetWorldLocation(GetActorLocation());
+					ParticleSystemComp->Activate(true);
+					PlayerHUDWidget->UpdatePlayerStatus();
+					KwangAnimInstance->PlayLevelUpSound();
+				}
+				else
+					PlayerHUDWidget->UpdatePlayerExpStatus();
 			}
+			KwangAnimInstance->PlayHitSoundRandom();
 		}
 	}
 }
@@ -309,6 +328,14 @@ void APlayerCharacter::StartJump()
 {
 	if (!IsInputEnable)
 		return;
+	if (!PlayerStatComp->IsEnableJump())
+		return;
+	if (GetCharacterMovement()->IsFalling())
+		return;
+
+	PlayerStatComp->ReduceStaminaByJump();
+	PlayerHUDWidget->UpdatePlayerStaminaStatus();
+
 	bPressedJump = true;
 }
 

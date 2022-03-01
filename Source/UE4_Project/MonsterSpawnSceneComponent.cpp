@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GameAmbientSound.h"
 
 // Sets default values for this component's properties
 UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
@@ -39,14 +40,44 @@ UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
 		MonsterSpawnParticleArr[1]->SetTemplate(PARTICLE_B.Object);
 		MonsterSpawnParticleArr[1]->bAutoActivate = false;
 	}
+
+	for (int spawnIdx = 0; spawnIdx < MonsterSpawnParticleArr.Num(); spawnIdx++)
+	{
+		MonsterSpawnParticleArr[spawnIdx]->OnSystemFinished.AddDynamic(this, &UMonsterSpawnSceneComponent::OnFinishSpawnEffect);
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> SPAWNING_SOUND_EFFECT(TEXT("/Game/CustomContent/Character/Monster/Sounds/ActionSounds/Spawning_Sound.Spawning_Sound"));
+	if (SPAWNING_SOUND_EFFECT.Succeeded())
+	{
+		SpawningSound = SPAWNING_SOUND_EFFECT.Object;
+	}
+	
+}
+
+void UMonsterSpawnSceneComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GameAmbientSound = Cast<AGameAmbientSound>(GetOwner()->GetWorld()->SpawnActor(AGameAmbientSound::StaticClass()));
+	if (GameAmbientSound == nullptr)
+	{
+		MYLOG(TEXT("FAIL to make GameAmbientSound"));
+	}
+	else
+		GameAmbientSound->PlayWaitBattleBGM();
+
 }
 
 void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	MYLOG_S();
+	if (SpawnedMonster != nullptr && !SpawnedMonster->IsMonsterDead())
+	{
+		return;
+	}
+
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetOwner()->GetWorld(), ASpawnPosActor::StaticClass(), OutActors);
-
+		
 	for (int idx = 0; idx < OutActors.Num(); idx++)
 	{
 		ASpawnPosActor* actor = Cast< ASpawnPosActor>(OutActors[idx]);
@@ -54,13 +85,19 @@ void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedCo
 		{
 			FRotator SpawnRotator = FRotator::ZeroRotator;
 			SpawnRotator.Yaw = 180.0f;
-			GetOwner()->GetWorld()->SpawnActor<AMonsterActor>(actor->GetActorLocation(), SpawnRotator);
+			SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AMonsterActor>(actor->GetActorLocation(), SpawnRotator);
+
+			SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
+
 			for (int spawnIdx = 0; spawnIdx < MonsterSpawnParticleArr.Num(); spawnIdx++)
 			{
 				MonsterSpawnParticleArr[spawnIdx]->SetWorldLocation(actor->GetActorLocation());
-				MonsterSpawnParticleArr[spawnIdx]->Activate(true);
-				MonsterSpawnParticleArr[spawnIdx]->OnSystemFinished.AddDynamic(this, &UMonsterSpawnSceneComponent::OnFinishSpawnEffect);
+				MonsterSpawnParticleArr[spawnIdx]->Activate(true);				
 			}
+
+			UGameplayStatics::PlaySoundAtLocation(GetOwner()->GetWorld(), SpawningSound, actor->GetActorLocation(), 0.5f, 0.5f);
+
+			GameAmbientSound->PlayPlayBattleBGM();
 
 			break;
 		}
@@ -69,5 +106,10 @@ void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedCo
 
 void UMonsterSpawnSceneComponent::OnFinishSpawnEffect(UParticleSystemComponent* PSystem)
 {
-	PSystem->Activate(false);
+	//PSystem->Activate(false);
+}
+
+void UMonsterSpawnSceneComponent::OnSpawnedMonsterDead()
+{
+	GameAmbientSound->PlayWaitBattleBGM();
 }

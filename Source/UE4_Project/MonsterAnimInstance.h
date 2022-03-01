@@ -21,8 +21,17 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 protected:
+	UPROPERTY()
 	class UCharacterMovementComponent* CharacterMovementComponent;
+	UPROPERTY()
 	class AMonsterActor* OwnerActor;
+
+	UPROPERTY()
+	TArray<class USoundBase*> AttackEffectSoundArr;
+	UPROPERTY()
+	TArray<class USoundBase*> HitEffectSoundArr;
+	UPROPERTY()
+	USoundBase* DyingSound;
 
 	// [begin] Move
 	const float LEAN_INTENSITY_FACTOR = 7.0f;
@@ -76,6 +85,9 @@ public:
 	void Animnotify_ResetCombo();
 
 	void PlayAttack(int combo);
+	void PlayAttackSoundRandom();
+	void PlayHitSoundRandom();
+	void StopDeadSound();
 	void SetDead();
 	// [end] attack
 };

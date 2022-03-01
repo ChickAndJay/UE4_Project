@@ -24,11 +24,11 @@ AMonsterAIController::AMonsterAIController()
 	}
 
 	// perception
-	auto PerceptionComp = CreateOptionalDefaultSubobject<UAIPerceptionComponent>(TEXT("MONSTER AI PERCEPTION"));
-	if (PerceptionComp != nullptr)
+	AIPerceptionComp = CreateOptionalDefaultSubobject<UAIPerceptionComponent>(TEXT("MONSTER AI PERCEPTION"));
+	if (AIPerceptionComp != nullptr)
 	{
-		SetPerceptionComponent(*PerceptionComp);
-		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIController::OnTargetDetected);
+		SetPerceptionComponent(*AIPerceptionComp);
+		AIPerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterAIController::OnTargetDetected);
 	}
 
 	SightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("PERCEPTION SIGHT CONFIG"));
@@ -44,12 +44,19 @@ AMonsterAIController::AMonsterAIController()
 		SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 		SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 			
-		if (PerceptionComp != nullptr)
+		if (AIPerceptionComp != nullptr)
 		{
-			PerceptionComp->SetDominantSense(*SightConfig->GetSenseImplementation());
-			PerceptionComp->ConfigureSense(*SightConfig);
+			AIPerceptionComp->SetDominantSense(*SightConfig->GetSenseImplementation());
+			AIPerceptionComp->ConfigureSense(*SightConfig);
 		}
-	}
+	}	
+}
+
+void AMonsterAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	RunAI();
 }
 
 void AMonsterAIController::OnTargetDetected(AActor* actor, FAIStimulus Stimulus)
@@ -67,6 +74,9 @@ void AMonsterAIController::RunAI()
 		{
 			MYLOG(TEXT("AIController couldn't run behavior tree!"));
 		}
+
+		auto blackboard = GetBlackboardComponent();
+		blackboard->SetValueAsBool(BlackBoardKeys::IsEnableRunningAIKey, false);
 	}
 }
 
@@ -77,4 +87,16 @@ void AMonsterAIController::StopAI()
 	{
 		BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 	}
+}
+
+void AMonsterAIController::EnableAIRunning()
+{
+	auto blackboard = GetBlackboardComponent();
+	blackboard->SetValueAsBool(BlackBoardKeys::IsEnableRunningAIKey, true);
+}
+
+void AMonsterAIController::DisableAIRunning()
+{
+	auto blackboard = GetBlackboardComponent();
+	blackboard->SetValueAsBool(BlackBoardKeys::IsEnableRunningAIKey, false);
 }

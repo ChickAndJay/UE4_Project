@@ -18,13 +18,27 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<class UParticleSystemComponent*> MonsterSpawnParticleArr;
+
+	UPROPERTY(VisibleAnywhere)
+	class AGameAmbientSound* GameAmbientSound;
+
+	UPROPERTY(VisibleAnywhere)
+	class AMonsterActor* SpawnedMonster;
+
+	UPROPERTY()
+	class USoundBase* SpawningSound;
 public:	
 	// Sets default values for this component's properties
 	UMonsterSpawnSceneComponent();
+
+	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void SpawnMonster(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnFinishSpawnEffect(UParticleSystemComponent* PSystem);
+
+	UFUNCTION()
+	void OnSpawnedMonsterDead();
 };

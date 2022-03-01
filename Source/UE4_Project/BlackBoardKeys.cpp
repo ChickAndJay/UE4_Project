@@ -5,6 +5,7 @@
 
 const FName BlackBoardKeys::TargetKey(TEXT("Target"));
 const FName BlackBoardKeys::PatrolLocationKey(TEXT("PatrolLocation"));
+const FName BlackBoardKeys::IsEnableRunningAIKey(TEXT("IsEnableRunningAI"));
 
 BlackBoardKeys::BlackBoardKeys()
 {

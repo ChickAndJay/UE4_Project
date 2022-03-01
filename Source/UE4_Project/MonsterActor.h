@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "MonsterActor.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnMonsterDeadDelegate);
+
 UCLASS()
 class UE4_PROJECT_API AMonsterActor : public ACharacter
 {
@@ -51,6 +53,8 @@ private:
 	FTimerHandle DeadTimerHandle = {};
 
 public:	
+	FOnMonsterDeadDelegate OnMonsterDead;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;

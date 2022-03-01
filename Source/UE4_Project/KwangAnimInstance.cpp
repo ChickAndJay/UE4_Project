@@ -5,6 +5,8 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/AmbientSound.h"
 
 UKwangAnimInstance::UKwangAnimInstance()
 {
@@ -31,11 +33,49 @@ UKwangAnimInstance::UKwangAnimInstance()
 		}
 	}
 
+	for (int soundIdx = 0; soundIdx < 3; soundIdx++)
+	{
+		FString SoundPath =
+			FString::Printf(
+				TEXT("/Game/CustomContent/Character/Kwang/Sounds/AttackSounds/Kwang_Attack_%02d.Kwang_Attack_%02d"),
+				soundIdx+1,
+				soundIdx+1);
+		
+		ConstructorHelpers::FObjectFinder<USoundBase> ATTACK_SOUND_EFFECT(*SoundPath);
+		if (ATTACK_SOUND_EFFECT.Succeeded())
+		{
+			AttackEffectSoundArr.Add(ATTACK_SOUND_EFFECT.Object);
+		}
+	}
+
+	for (int soundIdx = 0; soundIdx < 8; soundIdx++)
+	{
+		FString SoundPath =
+			FString::Printf(
+				TEXT("/Game/CustomContent/Character/Kwang/Sounds/HitSounds/Metal_Hit_%d.Metal_Hit_%d"),
+				soundIdx + 1,
+				soundIdx + 1);
+
+		ConstructorHelpers::FObjectFinder<USoundBase> HIT_SOUND_EFFECT(*SoundPath);
+		if (HIT_SOUND_EFFECT.Succeeded())
+		{
+			HitEffectSoundArr.Add(HIT_SOUND_EFFECT.Object);
+		}
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> LEVEL_UP_SOUND_EFFECT(TEXT("/Game/CustomContent/Character/Kwang/Sounds/ActionSounds/Level_Up_Sound.Level_Up_Sound"));
+	if (LEVEL_UP_SOUND_EFFECT.Succeeded())
+	{
+		LevelUpSound = LEVEL_UP_SOUND_EFFECT.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> LEVEL_START_MONTAGE(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/LevelStart_Montage.LevelStart_Montage"));
 	if (LEVEL_START_MONTAGE.Succeeded())
 	{
 		LevelStartMontage = LEVEL_START_MONTAGE.Object;
 	}
+
+
 
 	IsAccelerating = false;
 	IsAttacking = false;
@@ -112,6 +152,24 @@ void UKwangAnimInstance::PlayAttack(int combo)
 {
 	IsAttacking = true;
 	Montage_Play(AttackAnimMontageArray[combo - 1]);
+	PlayAttackSoundRandom();
+}
+
+void UKwangAnimInstance::PlayAttackSoundRandom()
+{
+	int AttackSoundIdx = UKismetMathLibrary::RandomInteger(AttackEffectSoundArr.Num());	
+	UGameplayStatics::PlaySoundAtLocation(OwnerActor->GetWorld(), AttackEffectSoundArr[AttackSoundIdx], OwnerActor->GetActorLocation());
+}
+
+void UKwangAnimInstance::PlayHitSoundRandom()
+{
+	int HitSoundIdx = UKismetMathLibrary::RandomInteger(HitEffectSoundArr.Num());
+	UGameplayStatics::PlaySoundAtLocation(OwnerActor->GetWorld(), HitEffectSoundArr[HitSoundIdx], OwnerActor->GetActorLocation());
+}
+
+void UKwangAnimInstance::PlayLevelUpSound()
+{
+	UGameplayStatics::PlaySoundAtLocation(OwnerActor->GetWorld(), LevelUpSound, OwnerActor->GetActorLocation());
 }
 
 void UKwangAnimInstance::SetDead()

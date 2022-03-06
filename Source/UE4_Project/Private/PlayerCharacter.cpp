@@ -233,24 +233,6 @@ void APlayerCharacter::AttackCheck()
 		Params
 	);
 
-#if ENABLE_DRAW_DEBUG
-	FVector TraceVec = GetActorForwardVector() * AttackRange;
-	FVector Center = GetActorLocation() + TraceVec * 0.5f;
-	float HalfHeight = AttackRange * 0.5f + AttackRadius;
-	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
-	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
-	float DebugLifeTime = 5.0f;
-
-	DrawDebugCapsule(GetWorld(),
-		Center,
-		HalfHeight,
-		AttackRadius,
-		CapsuleRot,
-		DrawColor,
-		false,
-		DebugLifeTime);
-#endif
-
 	if (bResult)
 	{
 		if (HitResult.Actor.IsValid())
@@ -332,7 +314,7 @@ void APlayerCharacter::MoveForward(float Value)
 	else
 		IsForwardRunning = false;
 
-	if(IsSprinting && !IsForwardRunning)
+	if(IsSprinting && IsForwardRunning)
 		GetCharacterMovement()->MaxWalkSpeed = MAX_SPRINT_FACTOR;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = MAX_JOG_VALUE;

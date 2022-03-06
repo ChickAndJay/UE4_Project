@@ -26,7 +26,7 @@ AObstacleActor::AObstacleActor()
 	BoxComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 
 	IsStartMoving = false;
-	MoveSpeed = 20.0f;
+	MoveSpeed = 200.0f;
 }
 
 // Called when the game starts or when spawned
@@ -51,7 +51,7 @@ void AObstacleActor::Tick(float DeltaTime)
 	SetActorLocation(Location);
 
 	float dist = FVector::Dist(OriginalPos, GetActorLocation());
-	if (dist >= 200.0f)
+	if (dist >= 2000.0f)
 	{
 		Destroy();
 	}

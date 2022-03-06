@@ -27,7 +27,7 @@ void UTitleMenuWidget::NativeConstruct()
 
 void UTitleMenuWidget::OnClick_Start()
 {
-	UGameplayStatics::OpenLevel(this, "Game");
+	UGameplayStatics::OpenLevel(this, "Game_Ver2");
 	MYLOG_S();
 }
 

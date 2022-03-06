@@ -14,6 +14,7 @@
 #include "ObstacleActor.h"
 #include "BorisMonsterActor.h"
 #include "GruxMonsterActor.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
@@ -59,6 +60,12 @@ UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
 	
 }
 
+void UMonsterSpawnSceneComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	isOnceSpawned = false;
+}
+
 void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (SpawnPos == nullptr) 
@@ -66,16 +73,24 @@ void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedCo
 		MYLOG(TEXT("Not Exist Spawn Pos"));
 		return;
 	}
-		
 
-	if (SpawnedMonster != nullptr && !SpawnedMonster->IsMonsterDead())
-	{
+	if (isOnceSpawned)
 		return;
-	}
+
+	isOnceSpawned = true;
 
 	FRotator SpawnRotator = FRotator::ZeroRotator;
 	SpawnRotator.Yaw = 180.0f;
-	SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AGruxMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
+
+	MYLOG(TEXT("MonsterCategory : %d"), MonsterCategory);
+	if (MonsterCategory == MONSTER_CATEGORY::Boris)
+	{
+		SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<ABorisMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
+	}
+	else if (MonsterCategory == MONSTER_CATEGORY::Grux)
+	{
+		SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AGruxMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
+	}
 
 	SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
 

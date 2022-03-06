@@ -21,7 +21,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+protected:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	class UMonsterStatComponent* MonsterStatComp;
 	UPROPERTY()

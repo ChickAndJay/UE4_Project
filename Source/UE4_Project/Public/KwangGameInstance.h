@@ -14,8 +14,14 @@ class UE4_PROJECT_API UKwangGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+private:
+	UPROPERTY()
+	class ASoundManager* SoundManager;
 public:
 	UKwangGameInstance();
 
 	virtual void Init() override;
+	
+	void SetSoundManager(class ASoundManager* NewSoundManager);
+	class ASoundManager* GetSoundManager();
 };

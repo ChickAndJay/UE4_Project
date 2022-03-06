@@ -20,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void InitializeValues();
+	void InstantiateSounds();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

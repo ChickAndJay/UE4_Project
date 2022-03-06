@@ -16,6 +16,12 @@ private:
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	class UBoxComponent* BoxComp;
 
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	class ASpawnPosActor* SpawnPos;
+
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	class AObstacleActor* Obstacle;
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<class UParticleSystemComponent*> MonsterSpawnParticleArr;
 
@@ -30,8 +36,6 @@ private:
 public:	
 	// Sets default values for this component's properties
 	UMonsterSpawnSceneComponent();
-
-	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void SpawnMonster(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

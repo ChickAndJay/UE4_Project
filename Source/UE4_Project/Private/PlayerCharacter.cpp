@@ -17,6 +17,10 @@
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GameAmbientSound.h"
+#include "KwangGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "SoundManager.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -96,6 +100,28 @@ void APlayerCharacter::BeginPlay()
 	PlayerHUDWidget = KwangPlayerController->GetPlayerHUDWidget();
 	PlayerHUDWidget->BindPlayerStat(PlayerStatComp);
 	PlayerHUDWidget->UpdatePlayerStatus();
+
+	InstantiateSounds();
+}
+
+void APlayerCharacter::InstantiateSounds()
+{
+	auto instance = Cast<UKwangGameInstance>(UGameplayStatics::GetGameInstance(GetOwner()->GetWorld()));
+
+	auto SoundManager = Cast<ASoundManager>(GetOwner()->GetWorld()->SpawnActor(ASoundManager::StaticClass()));
+	instance->SetSoundManager(SoundManager);
+
+	auto GameAmbientSound = Cast<AGameAmbientSound>(GetOwner()->GetWorld()->SpawnActor(AGameAmbientSound::StaticClass()));
+	if (GameAmbientSound == nullptr)
+	{
+		MYLOG(TEXT("FAIL to make GameAmbientSound"));
+	}
+	else
+	{
+		GameAmbientSound->PlayWaitBattleBGM();
+		
+		SoundManager->SetGameAmbientSound(GameAmbientSound);
+	}
 }
 
 // Called every frame

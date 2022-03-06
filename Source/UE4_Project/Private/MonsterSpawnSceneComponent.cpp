@@ -9,6 +9,11 @@
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameAmbientSound.h"
+#include "KwangGameInstance.h"
+#include "SoundManager.h"
+#include "ObstacleActor.h"
+#include "BorisMonsterActor.h"
+#include "GruxMonsterActor.h"
 
 // Sets default values for this component's properties
 UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
@@ -54,54 +59,37 @@ UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
 	
 }
 
-void UMonsterSpawnSceneComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GameAmbientSound = Cast<AGameAmbientSound>(GetOwner()->GetWorld()->SpawnActor(AGameAmbientSound::StaticClass()));
-	if (GameAmbientSound == nullptr)
-	{
-		MYLOG(TEXT("FAIL to make GameAmbientSound"));
-	}
-	else
-		GameAmbientSound->PlayWaitBattleBGM();
-
-}
-
 void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (SpawnPos == nullptr) 
+	{
+		MYLOG(TEXT("Not Exist Spawn Pos"));
+		return;
+	}
+		
+
 	if (SpawnedMonster != nullptr && !SpawnedMonster->IsMonsterDead())
 	{
 		return;
 	}
 
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetOwner()->GetWorld(), ASpawnPosActor::StaticClass(), OutActors);
-		
-	for (int idx = 0; idx < OutActors.Num(); idx++)
+	FRotator SpawnRotator = FRotator::ZeroRotator;
+	SpawnRotator.Yaw = 180.0f;
+	SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AGruxMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
+
+	SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
+
+	for (int spawnIdx = 0; spawnIdx < MonsterSpawnParticleArr.Num(); spawnIdx++)
 	{
-		ASpawnPosActor* actor = Cast< ASpawnPosActor>(OutActors[idx]);
-		if (actor != nullptr)
-		{
-			FRotator SpawnRotator = FRotator::ZeroRotator;
-			SpawnRotator.Yaw = 180.0f;
-			SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AMonsterActor>(actor->GetActorLocation(), SpawnRotator);
-
-			SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
-
-			for (int spawnIdx = 0; spawnIdx < MonsterSpawnParticleArr.Num(); spawnIdx++)
-			{
-				MonsterSpawnParticleArr[spawnIdx]->SetWorldLocation(actor->GetActorLocation());
-				MonsterSpawnParticleArr[spawnIdx]->Activate(true);				
-			}
-
-			UGameplayStatics::PlaySoundAtLocation(GetOwner()->GetWorld(), SpawningSound, actor->GetActorLocation(), 0.5f, 0.5f);
-
-			GameAmbientSound->PlayPlayBattleBGM();
-
-			break;
-		}
+		MonsterSpawnParticleArr[spawnIdx]->SetWorldLocation(SpawnPos->GetActorLocation());
+		MonsterSpawnParticleArr[spawnIdx]->Activate(true);				
 	}
+
+	UGameplayStatics::PlaySoundAtLocation(GetOwner()->GetWorld(), SpawningSound, SpawnPos->GetActorLocation(), 0.5f, 0.5f);
+
+	auto GameInstance = Cast<UKwangGameInstance>(UGameplayStatics::GetGameInstance(GetOwner()->GetWorld()));
+	auto AmbientSound = GameInstance->GetSoundManager()->GetGameAmbientSound();
+	AmbientSound->PlayPlayBattleBGM();
 }
 
 void UMonsterSpawnSceneComponent::OnFinishSpawnEffect(UParticleSystemComponent* PSystem)
@@ -111,5 +99,12 @@ void UMonsterSpawnSceneComponent::OnFinishSpawnEffect(UParticleSystemComponent* 
 
 void UMonsterSpawnSceneComponent::OnSpawnedMonsterDead()
 {
-	GameAmbientSound->PlayWaitBattleBGM();
+	auto GameInstance = Cast<UKwangGameInstance>(UGameplayStatics::GetGameInstance(GetOwner()->GetWorld()));
+	auto AmbientSound = GameInstance->GetSoundManager()->GetGameAmbientSound();
+	AmbientSound->PlayWaitBattleBGM();
+
+	if (Obstacle != nullptr)
+	{
+		Obstacle->MoveAway();
+	}
 }

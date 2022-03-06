@@ -4,6 +4,7 @@
 #include "KwangGameInstance.h"
 #include "Engine/DataTable.h"
 #include "CharacterDataManager.h"
+#include "SoundManager.h"
 
 UKwangGameInstance::UKwangGameInstance()
 {
@@ -18,4 +19,16 @@ void UKwangGameInstance::Init()
 {
 	Super::Init();
 	MYLOG_S();
+}
+
+void UKwangGameInstance::SetSoundManager(ASoundManager* NewSoundManager)
+{
+	if (NewSoundManager == nullptr)
+		return;
+	SoundManager = NewSoundManager;
+}
+
+ASoundManager* UKwangGameInstance::GetSoundManager()
+{
+	return SoundManager;
 }

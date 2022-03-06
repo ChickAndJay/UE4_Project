@@ -9,29 +9,6 @@
 
 UMonsterAnimInstance::UMonsterAnimInstance()
 {
-	TArray<FString> PostFixList;
-	PostFixList.Add("A");
-	PostFixList.Add("B");
-	PostFixList.Add("C");
-	PostFixList.Add("D");
-
-	for (int idx = 0; idx < PostFixList.Num(); idx++)
-	{
-		FString AttackMontagePath =
-			FString::Printf(
-				TEXT("/Game/ParagonBoris/Characters/Heroes/Boris/Animations/Primary_%s_Montage.Primary_%s_Montage"),
-				*PostFixList[idx],
-				*PostFixList[idx]);
-
-		//MYLOG(TEXT("%s"), *AttackMontagePath);
-
-		ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(*AttackMontagePath);
-		if (ATTACK_MONTAGE.Succeeded())
-		{
-			AttackAnimMontageArray.Add(ATTACK_MONTAGE.Object);
-		}
-	}
-
 	for (int soundIdx = 0; soundIdx < 3; soundIdx++)
 	{
 		FString SoundPath =
@@ -68,12 +45,6 @@ UMonsterAnimInstance::UMonsterAnimInstance()
 		DyingSound = DYING_SOUND_EFFECT.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> LEVEL_START_MONTAGE(TEXT("/Game/ParagonBoris/Characters/Heroes/Boris/Animations/LevelStart_Montage.LevelStart_Montage"));
-	if (LEVEL_START_MONTAGE.Succeeded())
-	{
-		LevelStartMontage = LEVEL_START_MONTAGE.Object;
-	}
-
 	IsInAir = false;
 }
 
@@ -88,6 +59,9 @@ void UMonsterAnimInstance::NativeBeginPlay()
 		CharacterMovementComponent = Owner->GetCharacterMovement();
 	}
 
+	MYLOG_S();
+	if (LevelStartMontage == nullptr)
+		MYLOG(TEXT("LevelStartMontage is nullptr"));
 	Montage_Play(LevelStartMontage);
 }
 

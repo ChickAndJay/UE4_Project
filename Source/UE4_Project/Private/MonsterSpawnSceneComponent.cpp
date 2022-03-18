@@ -58,6 +58,7 @@ UMonsterSpawnSceneComponent::UMonsterSpawnSceneComponent()
 		SpawningSound = SPAWNING_SOUND_EFFECT.Object;
 	}
 	
+	MonsterCategory = MONSTER_CATEGORY::Grux;
 }
 
 void UMonsterSpawnSceneComponent::BeginPlay()
@@ -77,12 +78,9 @@ void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedCo
 	if (isOnceSpawned)
 		return;
 
-	isOnceSpawned = true;
-
 	FRotator SpawnRotator = FRotator::ZeroRotator;
 	SpawnRotator.Yaw = 180.0f;
 
-	MYLOG(TEXT("MonsterCategory : %d"), MonsterCategory);
 	if (MonsterCategory == MONSTER_CATEGORY::Boris)
 	{
 		SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<ABorisMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
@@ -92,7 +90,16 @@ void UMonsterSpawnSceneComponent::SpawnMonster(UPrimitiveComponent* OverlappedCo
 		SpawnedMonster = GetOwner()->GetWorld()->SpawnActor<AGruxMonsterActor>(SpawnPos->GetActorLocation(), SpawnRotator);
 	}
 
-	SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
+	if (SpawnedMonster != nullptr)
+	{
+		SpawnedMonster->OnMonsterDead.AddUObject(this, &UMonsterSpawnSceneComponent::OnSpawnedMonsterDead);
+	}
+	else
+	{
+		return;
+	}
+
+	isOnceSpawned = true;
 
 	for (int spawnIdx = 0; spawnIdx < MonsterSpawnParticleArr.Num(); spawnIdx++)
 	{

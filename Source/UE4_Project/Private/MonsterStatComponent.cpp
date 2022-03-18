@@ -13,7 +13,7 @@ UMonsterStatComponent::UMonsterStatComponent()
 
 	MaxHP = 100;
 	CurrentHP = MaxHP;
-	AttackDamage = 20;
+	AttackDamage = 10;
 }
 
 

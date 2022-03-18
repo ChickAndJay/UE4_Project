@@ -18,4 +18,8 @@ public:
 	UBTTask_MonsterMoveToTarget();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds);
+
+	class APlayerCharacter* Target;
+	class AMonsterActor* Owner;
 };

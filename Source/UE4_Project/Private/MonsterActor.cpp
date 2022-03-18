@@ -27,7 +27,7 @@ AMonsterActor::AMonsterActor()
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP BAR WIDGET"));
 	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
 	HPBarWidget->SetDrawSize(FVector2D(120.0f, 20.0f));
-	HPBarWidget->SetWidgetSpace(EWidgetSpace::World);
+	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	HPBarWidget->SetupAttachment(RootComponent);	
 	HPBarWidget->SetHiddenInGame(false);
 
@@ -198,6 +198,7 @@ void AMonsterActor::MoveTo(FVector ToLocation)
 {
 	FRotator NewRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ToLocation);
 	NewRotator.Pitch = 0;
+	NewRotator.Roll = 0;
 	SetActorRotation(NewRotator);
 
 	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), ToLocation);

@@ -23,7 +23,7 @@ EBTNodeResult::Type UBTTask_FindPatrolPosition::ExecuteTask(UBehaviorTreeCompone
 
 	FVector From = Owner->GetActorLocation();
 	FNavLocation To;	
-	if (NavSystem->GetRandomPointInNavigableRadius(From, 1000.0f, To))
+	if (NavSystem->GetRandomReachablePointInRadius(From, 1000.0f, To))
 	{
 		To.Location.Z = From.Z;
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(BlackBoardKeys::PatrolLocationKey, To.Location);

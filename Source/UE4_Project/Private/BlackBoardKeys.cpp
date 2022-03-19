@@ -4,6 +4,7 @@
 #include "BlackBoardKeys.h"
 
 const FName BlackBoardKeys::TargetKey(TEXT("Target"));
+const FName BlackBoardKeys::TargetLocationKey(TEXT("TargetLocation"));
 const FName BlackBoardKeys::PatrolLocationKey(TEXT("PatrolLocation"));
 const FName BlackBoardKeys::IsEnableRunningAIKey(TEXT("IsEnableRunningAI"));
 

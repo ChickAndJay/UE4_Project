@@ -26,12 +26,12 @@ AMonsterActor::AMonsterActor()
 
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP BAR WIDGET"));
 	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
-	HPBarWidget->SetDrawSize(FVector2D(120.0f, 20.0f));
+	HPBarWidget->SetDrawSize(FVector2D(120.0f, 10.0f));
 	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	HPBarWidget->SetupAttachment(RootComponent);	
 	HPBarWidget->SetHiddenInGame(false);
 
-	static ConstructorHelpers::FClassFinder<UMonsterHPBarWidget> UI_HP_BAR(TEXT("/Game/CustomContent/UI/MonsterSimpleHpBar.MonsterSimpleHpBar_C"));
+	static ConstructorHelpers::FClassFinder<UMonsterHPBarWidget> UI_HP_BAR(TEXT("/Game/CustomContent/UI/MonsterHP.MonsterHP_C"));
 	if (UI_HP_BAR.Succeeded())
 	{
 		HPBarWidget->SetWidgetClass(UI_HP_BAR.Class);
@@ -48,6 +48,7 @@ AMonsterActor::AMonsterActor()
 	AttackRange = 180.0f;
 	AttackRadius = 50.0f;
 
+	IsMoving = false;
 	IsDead = false;
 }
 
@@ -170,8 +171,8 @@ void AMonsterActor::KillMonster()
 		);
 
 	AIController->StopAI();
-
 	OnMonsterDead.Broadcast();
+	HPBarWidget->SetHiddenInGame(false);
 }
 
 int AMonsterActor::GetAttackDamage()
@@ -189,18 +190,39 @@ bool AMonsterActor::IsMonsterDead()
 	return IsDead;
 }
 
+bool AMonsterActor::IsMonsterMoving()
+{
+	return IsMoving;
+}
+
 int AMonsterActor::GetDropExp()
 {
 	return MonsterStatComp->GetDropExp();
 }
 
-void AMonsterActor::MoveTo(FVector ToLocation)
+void AMonsterActor::RotateTo(FVector ToLocation)
 {
 	FRotator NewRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ToLocation);
 	NewRotator.Pitch = 0;
 	NewRotator.Roll = 0;
 	SetActorRotation(NewRotator);
+}
 
+void AMonsterActor::MoveTo(FVector ToLocation)
+{
 	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), ToLocation);
 	AddMovementInput(Direction, 1.0f);
+
+	RotateTo(ToLocation);
+	StartMoving();
+}
+
+void AMonsterActor::StartMoving()
+{
+	IsMoving = true;
+}
+
+void AMonsterActor::StopMoving()
+{
+	IsMoving = false;
 }

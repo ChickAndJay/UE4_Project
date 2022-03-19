@@ -63,6 +63,7 @@ void AMonsterAIController::OnTargetDetected(AActor* actor, FAIStimulus Stimulus)
 {
 	auto blackboard = GetBlackboardComponent();
 	blackboard->SetValueAsObject(BlackBoardKeys::TargetKey, actor);
+	blackboard->SetValueAsVector(BlackBoardKeys::TargetLocationKey, actor->GetActorLocation());
 }
 
 void AMonsterAIController::RunAI()

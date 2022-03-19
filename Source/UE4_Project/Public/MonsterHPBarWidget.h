@@ -14,16 +14,25 @@ class UE4_PROJECT_API UMonsterHPBarWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void NativeConstruct() override;
-	void UpdateHPWidget();
-
-public:
-	void BindMonsterStat(class UMonsterStatComponent* MonsterStat);
-
 private:
+	const float DamageOpacityDeacreasingSpeed = 0.035f;
+	float CurrentOpacity;
+	bool IsShowDamage = false;
+
 	TWeakObjectPtr<class UMonsterStatComponent> MonsterStat;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
 	class UProgressBar* HPProgressBarMonster;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	class UTextBlock* DamageTextBlock;
+
+protected:
+	virtual void NativeConstruct() override;
+	void UpdateHPWidget(int reducedHP = 0);
+
+public:
+	void BindMonsterStat(class UMonsterStatComponent* MonsterStat);
+	
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 };

@@ -3,23 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BTTask_MonsterMoveTo.h"
+#include "BlackBoardKeys.h"
+#include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_MonsterMoveToTarget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE4_PROJECT_API UBTTask_MonsterMoveToTarget : public UBTTask_MonsterMoveTo
+class UE4_PROJECT_API UBTTask_MonsterMoveToTarget : public UBTTaskNode
 {
 	GENERATED_BODY()
-	
-public:
-	UBTTask_MonsterMoveToTarget();
-
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds);
+protected:
+	FVector MoveToLocation;
+	FName TargetKey;
+	FName TargetLocationKey;
 
 	class APlayerCharacter* Target;
 	class AMonsterActor* Owner;
+
+	float ArriveCheckTolerance = 5.0f;
+
+	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+public:
+	UBTTask_MonsterMoveToTarget();
 };

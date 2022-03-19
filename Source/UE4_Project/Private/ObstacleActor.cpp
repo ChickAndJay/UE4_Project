@@ -19,11 +19,11 @@ AObstacleActor::AObstacleActor()
 		Mesh->SetStaticMesh(OBSTACLE_MESH.Object);
 	}
 
-	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BOX COMP"));
+	/*BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BOX COMP"));
 	BoxComp->SetupAttachment(RootComponent);
 	BoxComp->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
 	BoxComp->SetCollisionProfileName(TEXT("BlockAll"));
-	BoxComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	BoxComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));*/
 
 	IsStartMoving = false;
 	MoveSpeed = 200.0f;

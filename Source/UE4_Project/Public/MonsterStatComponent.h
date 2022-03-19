@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "MonsterStatComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnMonsterHPChangeDelegate);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMonsterHPChangeDelegate, int32);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4_PROJECT_API UMonsterStatComponent : public UActorComponent

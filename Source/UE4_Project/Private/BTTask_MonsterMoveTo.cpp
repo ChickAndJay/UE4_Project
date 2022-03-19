@@ -13,31 +13,29 @@ UBTTask_MonsterMoveTo::UBTTask_MonsterMoveTo()
 	bNotifyTick = true;
 
 	TargetLocationKey = BlackBoardKeys::PatrolLocationKey;
-
-	ArriveCheckTolerance = 5.0f;
 }
 
 EBTNodeResult::Type UBTTask_MonsterMoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	Super::ExecuteTask(OwnerComp, NodeMemory);
+
 	MoveToLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(TargetLocationKey);
+	Owner = Cast<AMonsterActor>(OwnerComp.GetAIOwner()->GetPawn());
+	if (Owner != nullptr)
+	{
+		FVector OwnerLocation = Owner->GetActorLocation();
+		FVector diff = MoveToLocation - OwnerLocation;
+
+		Owner->RotateTo(MoveToLocation);
+		Owner->StartMoving();
+	}
 
 	return EBTNodeResult::InProgress;
 }
 
-void UBTTask_MonsterMoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UBTTask_MonsterMoveTo::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
 {
-	auto Owner = Cast<AMonsterActor>(OwnerComp.GetAIOwner()->GetPawn());
-	if(Owner == nullptr)
-		return FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
-
-	FVector OwnerLocation = Owner->GetActorLocation();
-	FVector diff = MoveToLocation - OwnerLocation;
-
-	if (diff.IsNearlyZero(ArriveCheckTolerance))
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		return;
-	}
-
-	Owner->MoveTo(MoveToLocation);
+	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+	
+	Owner->StopMoving();
 }

@@ -2,16 +2,16 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UE4_Project.h"
 #include "BlackBoardKeys.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "BehaviorTree/Tasks/BTTask_MoveTo.h"
 #include "BTTask_MonsterMoveTo.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE4_PROJECT_API UBTTask_MonsterMoveTo : public UBTTaskNode
+class UE4_PROJECT_API UBTTask_MonsterMoveTo : public UBTTask_MoveTo
 {
 	GENERATED_BODY()
 	
@@ -19,11 +19,14 @@ protected:
 	FVector MoveToLocation;
 	FName TargetLocationKey;
 
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
-	float ArriveCheckTolerance;
+	class APlayerCharacter* Target;
+	class AMonsterActor* Owner;
 public:
 	UBTTask_MonsterMoveTo();
 
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds);
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
+
+	//virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	//virtual EBTNodeResult::Type PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

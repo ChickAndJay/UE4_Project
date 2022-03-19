@@ -42,9 +42,10 @@ void UMonsterStatComponent::AddDamage(int Damage)
 
 void UMonsterStatComponent::SetHP(int NewHP)
 {
+	int reducedHP = CurrentHP - NewHP;
 	CurrentHP = NewHP;
 
-	OnHPChanged.Broadcast();
+	OnHPChanged.Broadcast(reducedHP);
 	MYLOG(TEXT("Monster CurrentHP : %d"), CurrentHP);
 }
 

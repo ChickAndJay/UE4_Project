@@ -11,33 +11,38 @@ UBTTask_MonsterMoveToTarget::UBTTask_MonsterMoveToTarget()
 {
 	NodeName = TEXT("MonsterMoveToTarget");
 
-	TargetLocationKey = BlackBoardKeys::TargetKey;
+	TargetKey = BlackBoardKeys::TargetKey;
 
 	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBTTask_MonsterMoveToTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	Target = Cast<APlayerCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetLocationKey));
+	Target = Cast<APlayerCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetKey));
 	if (Target == nullptr)
 		return EBTNodeResult::Failed;
 
 	Owner = Cast<AMonsterActor>(OwnerComp.GetAIOwner()->GetPawn());
 	if(Owner == nullptr)
 		return EBTNodeResult::Failed;
-	ArriveCheckTolerance = Owner->GetAttackRange() - 50.0f;
 
-	MoveToLocation = Target->GetActorLocation();
+	Owner->MoveTo(Target->GetActorLocation());
+	Owner->RotateTo(Target->GetActorLocation());
 
 	return EBTNodeResult::InProgress;
 }
 
 void UBTTask_MonsterMoveToTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	MoveToLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(TargetLocationKey);
-
-	ArriveCheckTolerance = Owner->GetAttackRange() - 50.0f;
-	MoveToLocation = Target->GetActorLocation();
-
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	bool isInAttackRange = (Owner->GetDistanceTo(Target) <= Owner->GetAttackRange());
+	if (isInAttackRange)
+	{
+		Owner->StopMoving();
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
+	}
+
+	Owner->MoveTo(Target->GetActorLocation());
 }

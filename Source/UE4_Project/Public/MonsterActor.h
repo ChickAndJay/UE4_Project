@@ -24,7 +24,7 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	class UMonsterStatComponent* MonsterStatComp;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	class UMonsterAnimInstance* AnimInstance;
 	UPROPERTY()
 	class AMonsterAIController* AIController;
@@ -44,6 +44,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float DeadDestroyDelay = 3.0f;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsMoving;
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsDead;
@@ -75,7 +78,15 @@ public:
 	int GetDropExp();
 
 	bool IsMonsterDead();	
+	bool IsMonsterMoving();
 
 	UFUNCTION()
+	void RotateTo(FVector ToLocation);
+	UFUNCTION()
 	void MoveTo(FVector ToLocation);
+
+	UFUNCTION()
+	void StartMoving();
+	UFUNCTION()
+	void StopMoving();
 };

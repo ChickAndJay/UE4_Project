@@ -11,6 +11,7 @@ class UE4_PROJECT_API BlackBoardKeys
 {
 public:
 	static const FName TargetKey;
+	static const FName TargetLocationKey;
 	static const FName PatrolLocationKey;
 	static const FName IsEnableRunningAIKey;
 

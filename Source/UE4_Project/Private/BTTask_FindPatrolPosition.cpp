@@ -25,7 +25,6 @@ EBTNodeResult::Type UBTTask_FindPatrolPosition::ExecuteTask(UBehaviorTreeCompone
 	FNavLocation To;	
 	if (NavSystem->GetRandomReachablePointInRadius(From, 1000.0f, To))
 	{
-		To.Location.Z = From.Z;
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(BlackBoardKeys::PatrolLocationKey, To.Location);
 		return EBTNodeResult::Succeeded;
 	}

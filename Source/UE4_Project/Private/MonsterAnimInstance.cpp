@@ -71,8 +71,6 @@ void UMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (IsValid(OwnerActor))
 	{
-		// Calculate Speed
-		Speed = OwnerActor->GetVelocity().Size();
 		// Rool Pitch Yaw
 		FRotator AimRotation = OwnerActor->GetBaseAimRotation();
 		FRotator ActorRotation = OwnerActor->GetActorRotation();
@@ -92,18 +90,17 @@ void UMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 
 		RotationLastTick = ActorRotation;
-	}
 
-	if (IsValid(CharacterMovementComponent))
-	{
-		// Check IsAccelerating
-		FVector Acceleration = CharacterMovementComponent->GetCurrentAcceleration();
-		if (Acceleration.Size() > 0)
-			IsAccelerating = true;
+		IsAccelerating = OwnerActor->IsMonsterMoving();
+		if (IsAccelerating)
+		{
+			Speed = 100.0f;
+		}
 		else
-			IsAccelerating = false;
-
-		//MYLOG(TEXT("IsAccelerating : %s"), IsAccelerating ? TEXT("TRUE") : TEXT("FALSE"));
+		{
+			Speed = 0.f;
+		}
+		//MYLOG(TEXT("MonsterAnim : %s %f"), IsAccelerating ? TEXT("TRUE") : TEXT("FALSE"), Speed);
 	}
 }
 

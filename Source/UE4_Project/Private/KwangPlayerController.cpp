@@ -26,3 +26,17 @@ UPlayerHUDWidget* AKwangPlayerController::GetPlayerHUDWidget()
 {
 	return PlayerHUDWidget;
 }
+
+void AKwangPlayerController::ChangeInputMode(bool GameMode)
+{
+	if (GameMode)
+	{
+		SetInputMode(GameInputMode);
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		SetInputMode(UIInputMode);
+		bShowMouseCursor = true;
+	}
+}

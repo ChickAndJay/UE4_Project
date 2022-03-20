@@ -36,7 +36,7 @@ public:
 
 	FOnMonsterHPChangeDelegate OnHPChanged;
 private:
-	const int DROP_EXP = 25;
+	const int DROP_EXP = 100;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int MaxHP;

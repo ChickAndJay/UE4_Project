@@ -30,6 +30,8 @@ private:
 	class UTextBlock* HPTextBlock;
 	UPROPERTY()
 	class UTextBlock* StaminaTextBlock;
+	UPROPERTY()
+	class USkillUserWidget* SkillWidgetArr[2];
 protected:
 	virtual void NativeConstruct() override;
 public:
@@ -45,4 +47,6 @@ public:
 	void UpdatePlayerExpStatus();
 	UFUNCTION()
 	void UpdatePlayerHUDInfo();
+	UFUNCTION()
+	void UpdatePlayerSkills();
 };

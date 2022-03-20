@@ -17,6 +17,7 @@ class UE4_PROJECT_API AKwangPlayerController : public APlayerController
 public:
 	AKwangPlayerController();
 
+	void ChangeInputMode(bool GameMode);
 protected:	
 	virtual void BeginPlay() override;
 
@@ -29,4 +30,7 @@ protected:
 private:
 	UPROPERTY()
 	class UPlayerHUDWidget* PlayerHUDWidget;
+
+	FInputModeGameOnly GameInputMode;
+	FInputModeUIOnly UIInputMode;
 };

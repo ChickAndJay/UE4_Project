@@ -25,5 +25,8 @@ public:
 
 	int GetCharacterMaxHP(int Level);
 	int GetCharacterMaxStamina(int Level);
+
+	int GetCharacterSkill1(int Level);
+	int GetCharacterSkill2(int Level);
 };
 

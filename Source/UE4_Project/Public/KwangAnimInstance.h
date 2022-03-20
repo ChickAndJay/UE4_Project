@@ -8,7 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnSaveAttackDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnResetComboDelegate);
-
+DECLARE_MULTICAST_DELEGATE(FOnHealEndDelegate);
 /**
  * 
  */
@@ -34,6 +34,8 @@ protected:
 	TArray<class USoundBase*> HitEffectSoundArr;
 	UPROPERTY()
 	class USoundBase* LevelUpSound;
+	UPROPERTY()
+	class USoundBase* HealSound;
 
 	// [begin] Move
 	const float LEAN_INTENSITY_FACTOR = 7.0f;
@@ -69,6 +71,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UAnimMontage* LevelStartMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	UAnimMontage* HealMontage;
 	
 
 	// [begin] attack
@@ -79,17 +84,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool IsDead;
 
+public:
 	FOnSaveAttackDelegate OnSaveAttack;
 	FOnResetComboDelegate OnResetCombo;
+	FOnHealEndDelegate OnHealEnd;
 public:
-	FORCEINLINE FOnSaveAttackDelegate& GetOnSaveAttackDelegate()
-	{
-		return OnSaveAttack;
-	}
-	FORCEINLINE FOnResetComboDelegate& GetOnResetComboDelegate()
-	{
-		return OnResetCombo;
-	}
 
 	UFUNCTION()
 	void Animnotify_EndLevelStartMontage();
@@ -97,7 +96,10 @@ public:
 	void Animnotify_SaveAttack();
 	UFUNCTION()
 	void Animnotify_ResetCombo();
+	UFUNCTION()
+	void Animnotify_HealEnd();
 
+	void PlayHeal();
 	void PlayAttack(int combo);
 	void PlayAttackSoundRandom();
 	void PlayHitSoundRandom();

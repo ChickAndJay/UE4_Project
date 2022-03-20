@@ -16,3 +16,31 @@ enum class ECharacterState : uint8
 	ALIVE,
 	DEAD
 };
+
+UENUM(BlueprintType)
+enum class ESkillCategory: uint8
+{
+	Heal,
+	Poison
+};
+
+UENUM(BlueprintType)
+enum class ESkillTargetType : uint8
+{
+	SELF,
+	TARGET
+};
+
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+	FIRST,
+	SECOND
+};
+
+UENUM(BlueprintType)
+enum class ESkillUseType : uint8
+{
+	INSTANT,
+	DOT
+};

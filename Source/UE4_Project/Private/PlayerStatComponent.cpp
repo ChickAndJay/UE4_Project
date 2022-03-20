@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterDataManager.h"
+#include "SkillHolderComponent.h"
 
 // Sets default values for this component's properties
 UPlayerStatComponent::UPlayerStatComponent()
@@ -26,6 +27,12 @@ UPlayerStatComponent::UPlayerStatComponent()
 
 	AdditionalStaminaPerTick = 0.2f;
 	ReductionalStaminaPerSprinting = 0.2f;
+
+	int firstSkillIdx = static_cast<int>(ESkillType::FIRST);
+	int secondSkillIdx = static_cast<int>(ESkillType::SECOND);
+
+	SkillHolder[firstSkillIdx] = CreateDefaultSubobject<USkillHolderComponent>(TEXT("Skill First"));
+	SkillHolder[secondSkillIdx] = CreateDefaultSubobject<USkillHolderComponent>(TEXT("Skill Second"));
 	// ...
 }
 
@@ -59,6 +66,23 @@ void UPlayerStatComponent::InitCharacterStatData()
 	CurrentStamina = MaxStamina;
 
 	CurrentExp = 0;
+
+	int firstSkillIdx = static_cast<int>(ESkillType::FIRST);
+	int secondSkillIdx = static_cast<int>(ESkillType::SECOND);
+
+	SkillIdxArr[firstSkillIdx] = CharacterDataManager::GetInstance()->GetCharacterSkill1(CurrentLevel);
+	SkillIdxArr[secondSkillIdx] = CharacterDataManager::GetInstance()->GetCharacterSkill2(CurrentLevel);
+
+	MYLOG(TEXT("Skill Idx : %d %d"), SkillIdxArr[firstSkillIdx], SkillIdxArr[secondSkillIdx]);
+
+	SkillHolder[firstSkillIdx]->SetSkillInfo(SkillIdxArr[firstSkillIdx]);
+	SkillHolder[secondSkillIdx]->SetSkillInfo(SkillIdxArr[secondSkillIdx]);
+}
+
+void UPlayerStatComponent::Heal(int HealValue)
+{
+	SetHP(FMath::Clamp<float>(CurrentHP + HealValue, 0, MaxHP));
+	ReduceStamina(STAMINA_PER_SKILL);
 }
 
 void UPlayerStatComponent::AddDamage(int Damage)
@@ -103,6 +127,12 @@ void UPlayerStatComponent::AddLevel()
 	if(CurrentLevel < MAX_LEVEL)
 		CurrentLevel++;
 	InitCharacterStatData();
+}
+
+void UPlayerStatComponent::LevelUpSkill(ESkillType LevelUpSkillType)
+{
+	int skillSlotIdx = static_cast<int>(LevelUpSkillType);
+	SkillHolder[skillSlotIdx]->LevelUpSkill();
 }
 
 int UPlayerStatComponent::GetMaxHP()
@@ -172,12 +202,17 @@ void UPlayerStatComponent::UpdateStamina()
 
 void UPlayerStatComponent::ReduceStaminaByAttack()
 {
-	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_ATTACK, 0, MaxStamina);
+	ReduceStamina(STAMINA_PER_ATTACK);
 }
 
 void UPlayerStatComponent::ReduceStaminaByJump()
 {
-	CurrentStamina = FMath::Clamp<float>(CurrentStamina - STAMINA_PER_JUMP, 0, MaxStamina);
+	ReduceStamina(STAMINA_PER_JUMP);
+}
+
+void UPlayerStatComponent::ReduceStamina(int reduceValue)
+{
+	CurrentStamina = FMath::Clamp<float>(CurrentStamina - reduceValue, 0, MaxStamina);
 }
 
 bool UPlayerStatComponent::IsEnableAttack()
@@ -193,4 +228,22 @@ bool UPlayerStatComponent::IsEnableJump()
 bool UPlayerStatComponent::IsMaxLevel()
 {
 	return CurrentLevel >= MAX_LEVEL;
+}
+
+USkillHolderComponent* UPlayerStatComponent::GetSkillHolderComp(ESkillType skillType)
+{
+	int skillIdx = static_cast<int>(skillType);
+	return SkillHolder[skillIdx];
+}
+
+void UPlayerStatComponent::UseFirstSkill_Q()
+{
+	int skillIdx = static_cast<int>(ESkillType::FIRST);
+	SkillHolder[skillIdx]->UseSkill();
+}
+
+void UPlayerStatComponent::UseSecondSkill_E()
+{
+	int skillIdx = static_cast<int>(ESkillType::SECOND);
+	SkillHolder[skillIdx]->UseSkill();
 }

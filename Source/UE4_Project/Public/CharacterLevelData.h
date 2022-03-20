@@ -22,4 +22,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MAX_STAMINA;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SKILL_IDX_1_INIT;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SKILL_IDX_2_INIT;
 };

@@ -60,13 +60,20 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UAIPerceptionStimuliSourceComponent* AIPerceptionSourceComponent;
 	UPROPERTY()
-	class UParticleSystemComponent* ParticleSystemComp;
+	class UParticleSystemComponent* LevelUpParticleComp;
+	UPROPERTY()
+	class UParticleSystemComponent* HealParticleComp;
 
 	UPROPERTY()
 	class AKwangPlayerController* KwangPlayerController;
 
 	UPROPERTY()
 	TWeakObjectPtr<class UPlayerHUDWidget> PlayerHUDWidget;
+
+	UPROPERTY()
+	TSubclassOf<class ULevelUpUserWidget> LevelUpWidgetClass;
+
+	FTimerHandle LevelUpTimerHandle = {};
 
 	UPROPERTY(EditAnywhere, Category = Attack)
 	float AttackRange;
@@ -90,6 +97,7 @@ public:
 	void PlayerAttack();
 	void CheckNextAttack();
 	void ResetCombo();
+	void Heal(int HealValue);
 
 	FORCEINLINE bool GetIsSprinting()
 	{
@@ -127,7 +135,14 @@ public:
 	void Attack();
 
 	UFUNCTION()
+	void FirstSkill_Q();
+	UFUNCTION()
+	void SecondSkill_E();
+
+	UFUNCTION()
 	void SetInputEnable();
+	UFUNCTION()
+	void SetInputDisable();
 
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddControllerYawInput(float Val) override;
@@ -135,5 +150,4 @@ public:
 	void RotateMouseWheel(float Val);
 
 	void AttackCheck();
-
 };

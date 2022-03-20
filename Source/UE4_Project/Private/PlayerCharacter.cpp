@@ -21,6 +21,7 @@
 #include "KwangGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "SoundManager.h"
+#include "LevelUpUserWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -43,14 +44,24 @@ APlayerCharacter::APlayerCharacter()
 	AIPerceptionSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AI PERCEPTION SOURCE"));
 	AIPerceptionSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
 
-	ParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("LEVEL UP PARTICLE SYSTEM"));
-	ParticleSystemComp->SetupAttachment(RootComponent);
+	LevelUpParticleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("LEVEL UP PARTICLE SYSTEM"));
+	LevelUpParticleComp->SetupAttachment(RootComponent);
+
+	HealParticleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("HEAL PARTICLE SYSTEM"));
+	HealParticleComp->SetupAttachment(RootComponent);
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> LEVEL_UP_PARTICLE(TEXT("/Game/CustomContent/Character/Kwang/FX/LevelUp_FX.LevelUp_FX"));
 	if (LEVEL_UP_PARTICLE.Succeeded())
 	{
-		ParticleSystemComp->SetTemplate(LEVEL_UP_PARTICLE.Object);
-		ParticleSystemComp->bAutoActivate = false;
+		LevelUpParticleComp->SetTemplate(LEVEL_UP_PARTICLE.Object);
+		LevelUpParticleComp->bAutoActivate = false;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> HEAL_PARTICLE(TEXT("/Game/CustomContent/Character/Kwang/FX/Heal_FX.Heal_FX"));
+	if (HEAL_PARTICLE.Succeeded())
+	{
+		HealParticleComp->SetTemplate(HEAL_PARTICLE.Object);
+		HealParticleComp->bAutoActivate = false;
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshObject(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Meshes/Kwang_GDC.Kwang_GDC"));
@@ -63,6 +74,17 @@ APlayerCharacter::APlayerCharacter()
 	static ConstructorHelpers::FClassFinder<UKwangAnimInstance> BP_ANIM(TEXT("/Game/CustomContent/Character/Kwang/Animation/Kwang_AnimBlueprint_Custom.Kwang_AnimBlueprint_Custom_C"));
 	if (BP_ANIM.Succeeded())
 		GetMesh()->SetAnimInstanceClass(BP_ANIM.Class);
+
+	static ConstructorHelpers::FClassFinder<ULevelUpUserWidget> UI_LEVEL_UP_C(TEXT("/Game/CustomContent/UI/BP_LevelUpWidget.BP_LevelUpWidget_C"));
+	if (UI_LEVEL_UP_C.Succeeded())
+	{
+		MYLOG(TEXT("LevelUp Class Find"));
+		LevelUpWidgetClass = UI_LEVEL_UP_C.Class;
+	}
+	else
+	{
+		MYLOG(TEXT("LevelUp Class Find Failed"));
+	}
 
 	PlayerStatComp = CreateDefaultSubobject<UPlayerStatComponent>(TEXT("PLAYER STAT"));
 	
@@ -158,6 +180,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &APlayerCharacter::Attack);
 
+	PlayerInputComponent->BindAction("Q", IE_Released, this, &APlayerCharacter::FirstSkill_Q);
+	PlayerInputComponent->BindAction("E", IE_Released, this, &APlayerCharacter::SecondSkill_E);
+
 	PlayerInputComponent->BindAction("LeftShift", IE_Pressed, this, &APlayerCharacter::SetSprint);
 	PlayerInputComponent->BindAction("LeftShift", IE_Released, this, &APlayerCharacter::UnsetSprint);
 }
@@ -169,14 +194,20 @@ void APlayerCharacter::PostInitializeComponents()
 	KwangAnimInstance = Cast<UKwangAnimInstance>(GetMesh()->GetAnimInstance());
 	if (IsValid(KwangAnimInstance))
 	{
-		KwangAnimInstance->GetOnSaveAttackDelegate().AddUObject(this, &APlayerCharacter::CheckNextAttack);
-		KwangAnimInstance->GetOnResetComboDelegate().AddUObject(this, &APlayerCharacter::ResetCombo);
+		KwangAnimInstance->OnSaveAttack.AddUObject(this, &APlayerCharacter::CheckNextAttack);
+		KwangAnimInstance->OnResetCombo.AddUObject(this, &APlayerCharacter::ResetCombo);
+		KwangAnimInstance->OnHealEnd.AddUObject(this, &APlayerCharacter::SetInputEnable);
 	}
 }
 
 void APlayerCharacter::SetInputEnable()
 {
 	IsInputEnable = true;
+}
+
+void APlayerCharacter::SetInputDisable()
+{
+	IsInputEnable = false;
 }
 
 void APlayerCharacter::PlayerAttack()
@@ -203,6 +234,16 @@ void APlayerCharacter::CheckNextAttack()
 void APlayerCharacter::ResetCombo()
 {		
 	SetEndAttackState();
+}
+
+void APlayerCharacter::Heal(int HealValue)
+{	
+	PlayerStatComp->Heal(HealValue);
+	HealParticleComp->SetWorldLocation(GetActorLocation());
+	HealParticleComp->Activate(true);
+	KwangAnimInstance->PlayHeal();
+
+	PlayerHUDWidget->UpdatePlayerHPStatus();
 }
 
 void APlayerCharacter::SetStartAttackState()
@@ -254,10 +295,30 @@ void APlayerCharacter::AttackCheck()
 				int DropExp = MonsterActor->GetDropExp();
 				if (PlayerStatComp->AddExp(DropExp))
 				{
-					ParticleSystemComp->SetWorldLocation(GetActorLocation());
-					ParticleSystemComp->Activate(true);
-					PlayerHUDWidget->UpdatePlayerStatus();
+					LevelUpParticleComp->SetWorldLocation(GetActorLocation());
+					LevelUpParticleComp->Activate(true);
+
 					KwangAnimInstance->PlayLevelUpSound();
+
+					GetWorld()->GetTimerManager().SetTimer(LevelUpTimerHandle,
+						FTimerDelegate::CreateLambda(
+							[this]()->void {
+								auto LevelUpWidget = CreateWidget<ULevelUpUserWidget>(Cast<AKwangPlayerController>(GetController()), LevelUpWidgetClass);
+								LevelUpWidget->BindPlayerCharacter(this);
+								LevelUpWidget->AddToViewport(3);
+
+								Cast<AKwangPlayerController>(GetController())->ChangeInputMode(false);
+
+								LevelUpWidget->OnSkillLevelUp.AddLambda([this](ESkillType skillType)-> void {
+									PlayerStatComp->LevelUpSkill(skillType);
+
+									Cast<AKwangPlayerController>(GetController())->ChangeInputMode(true);
+
+									PlayerHUDWidget->UpdatePlayerStatus();
+									});
+							}),
+							1.0f,
+							false);
 				}
 				else
 					PlayerHUDWidget->UpdatePlayerExpStatus();
@@ -373,6 +434,17 @@ void APlayerCharacter::Attack()
 	{
 		IsPressedComboInput = true;
 	}
+}
+
+void APlayerCharacter::FirstSkill_Q()
+{
+	MYLOG_S();
+	PlayerStatComp->UseFirstSkill_Q();
+}
+
+void APlayerCharacter::SecondSkill_E()
+{
+	PlayerStatComp->UseSecondSkill_E();
 }
 
 void APlayerCharacter::AddControllerPitchInput(float Val)

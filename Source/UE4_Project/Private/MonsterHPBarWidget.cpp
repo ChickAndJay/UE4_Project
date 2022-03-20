@@ -33,6 +33,8 @@ void UMonsterHPBarWidget::NativeConstruct()
 	}
 
 	IsShowDamage = false;
+
+	MYLOG_S();
 }
 
 void UMonsterHPBarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

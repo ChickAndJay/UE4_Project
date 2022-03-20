@@ -33,6 +33,12 @@ UKwangAnimInstance::UKwangAnimInstance()
 		}
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> HEAL_MONTAGE(TEXT("/Game/CustomContent/Character/Kwang/Animation/Heal_Montage.Heal_Montage"));
+	if (HEAL_MONTAGE.Succeeded())
+	{
+		HealMontage = HEAL_MONTAGE.Object;
+	}
+
 	for (int soundIdx = 0; soundIdx < 3; soundIdx++)
 	{
 		FString SoundPath =
@@ -68,6 +74,12 @@ UKwangAnimInstance::UKwangAnimInstance()
 	{
 		LevelUpSound = LEVEL_UP_SOUND_EFFECT.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> HEAL_SOUND_EFFECT(TEXT("/Game/CustomContent/Character/Kwang/Sounds/ActionSounds/Heal_Effect_Sound.Heal_Effect_Sound"));
+	if (HEAL_SOUND_EFFECT.Succeeded())
+	{
+		HealSound = HEAL_SOUND_EFFECT.Object;
+	}	
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> LEVEL_START_MONTAGE(TEXT("/Game/ParagonKwang/Characters/Heroes/Kwang/Animations/LevelStart_Montage.LevelStart_Montage"));
 	if (LEVEL_START_MONTAGE.Succeeded())
@@ -148,6 +160,13 @@ void UKwangAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
+void UKwangAnimInstance::PlayHeal()
+{
+	MYLOG_S();
+	Montage_Play(HealMontage);
+	UGameplayStatics::PlaySoundAtLocation(OwnerActor->GetWorld(), HealSound, OwnerActor->GetActorLocation());
+}
+
 void UKwangAnimInstance::PlayAttack(int combo)
 {
 	IsAttacking = true;
@@ -191,4 +210,9 @@ void UKwangAnimInstance::Animnotify_ResetCombo()
 {
 	IsAttacking = false;
 	OnResetCombo.Broadcast();
+}
+
+void UKwangAnimInstance::Animnotify_HealEnd()
+{
+	OwnerActor->SetInputEnable();
 }

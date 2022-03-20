@@ -4,6 +4,7 @@
 #include "KwangGameInstance.h"
 #include "Engine/DataTable.h"
 #include "CharacterDataManager.h"
+#include "SkillDataManager.h"
 #include "SoundManager.h"
 
 UKwangGameInstance::UKwangGameInstance()
@@ -12,6 +13,12 @@ UKwangGameInstance::UKwangGameInstance()
 	if (STATIC_CHARACTER.Succeeded())
 	{
 		CharacterDataManager::GetInstance()->SetCharacterLevelTable(STATIC_CHARACTER.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> STATIC_SKILL(TEXT("/Game/CustomContent/DB_Data/static_skill.static_skill"));
+	if (STATIC_SKILL.Succeeded())
+	{
+		SkillDataManager::GetInstance()->SetSkillTable(STATIC_SKILL.Object);
 	}
 }
 

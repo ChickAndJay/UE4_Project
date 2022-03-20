@@ -6,6 +6,7 @@
 #include "PlayerHUDInfoButton.h"
 #include "PlayerStatComponent.h"
 #include "Components/TextBlock.h"
+#include "SkillUserWidget.h"
 
 void UPlayerHUDWidget::NativeConstruct()
 {
@@ -19,6 +20,12 @@ void UPlayerHUDWidget::NativeConstruct()
 
 	HPTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("HPText")));
 	StaminaTextBlock = Cast<UTextBlock>(GetWidgetFromName(TEXT("StaminaText")));
+
+	int firstSkillIdx = static_cast<int>(ESkillType::FIRST);
+	int secondSkillIdx = static_cast<int>(ESkillType::SECOND);
+	
+	SkillWidgetArr[firstSkillIdx] = Cast<USkillUserWidget>(GetWidgetFromName(TEXT("Skill_1")));
+	SkillWidgetArr[secondSkillIdx] = Cast<USkillUserWidget>(GetWidgetFromName(TEXT("Skill_2")));
 }
 
 void UPlayerHUDWidget::BindPlayerStat(UPlayerStatComponent* NewPlayerStatComp)
@@ -26,6 +33,15 @@ void UPlayerHUDWidget::BindPlayerStat(UPlayerStatComponent* NewPlayerStatComp)
 	if (NewPlayerStatComp != nullptr)
 	{
 		PlayerStatComp = NewPlayerStatComp;
+
+		int firstSkillIdx = static_cast<int>(ESkillType::FIRST);
+		int secondSkillIdx = static_cast<int>(ESkillType::SECOND);
+
+		SkillWidgetArr[firstSkillIdx]->BindSkillHolder(PlayerStatComp->GetSkillHolderComp(ESkillType::FIRST));
+		SkillWidgetArr[secondSkillIdx]->BindSkillHolder(PlayerStatComp->GetSkillHolderComp(ESkillType::SECOND));
+
+		SkillWidgetArr[firstSkillIdx]->UpdateSkillState();
+		SkillWidgetArr[secondSkillIdx]->UpdateSkillState();
 	}
 }
 
@@ -35,6 +51,7 @@ void UPlayerHUDWidget::UpdatePlayerStatus()
 	UpdatePlayerExpStatus();
 	UpdatePlayerHUDInfo();
 	UpdatePlayerStaminaStatus();
+	UpdatePlayerSkills();
 }
 
 void UPlayerHUDWidget::UpdatePlayerHPStatus()
@@ -74,4 +91,13 @@ void UPlayerHUDWidget::UpdatePlayerHUDInfo()
 	{
 		InfoButtonWidget->UpdatePlayerLevel(PlayerStatComp->GetCurrentLevel());
 	}
+}
+
+void UPlayerHUDWidget::UpdatePlayerSkills()
+{
+	int firstSkillIdx = static_cast<int>(ESkillType::FIRST);
+	int secondSkillIdx = static_cast<int>(ESkillType::SECOND);
+
+	SkillWidgetArr[firstSkillIdx]->UpdateSkillState();
+	SkillWidgetArr[secondSkillIdx]->UpdateSkillState();
 }
